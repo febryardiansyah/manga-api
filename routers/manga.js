@@ -7,7 +7,7 @@ const baseUrl = require('../constants/urls')
 router.get('/manga/popular', (req, res,next) => {
     request(baseUrl,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err.message)
+            next(err)
         }
         try {
             const $ = cheerio.load(body)
@@ -57,7 +57,7 @@ router.get('/manga/:slug',(req,res,next) => {
         var title,status,released,updated_on,author,type,posted_on,genre_name,
         thumb,score,synopsis,chapter_title,chapter_endpoint,chapter_uploaded
         infoanime.filter(function (){
-            title = $(this).find('.entry-title').text()
+            title = $(this).find('.entry-title').text().replace('Komik ','')
             thumb = $(this).find('img').attr('data-lazy-src') || $(this).find('img').attr('src')
             $(this).find('.infox').filter(function(){
                 status = $(this).find('.spe>span').first().text().replace('Status: ','')
@@ -151,7 +151,7 @@ router.get('/manga/terbaru/:id',function(req,res,next) {
     const url = `${baseUrl+'komik-terbaru/'+id}`
     request(url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err.message)
+            next(err)
         }
         try {
             const $ = cheerio.load(body)
@@ -178,7 +178,7 @@ router.get('/manga/terbaru/:id',function(req,res,next) {
 router.get('/genres',(req,res,next)=>{
     request(baseUrl+'daftar-genre/',(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err.message)
+            next(err)
         }
         try {
             const $ = cheerio.load(body)
@@ -203,7 +203,7 @@ router.get('/genres/:slug',(req,res,next)=>{
     const url = `genres/${slug}`
     request(baseUrl+url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err.message)
+            next(err)
         }
         try {
             const $ = cheerio.load(body)
