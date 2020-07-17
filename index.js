@@ -5,7 +5,7 @@ const manga = require('./routers/manga')
 const chapter = require('./routers/chapter')
 const comic = require('./routers/comic')
 
-app.use('/api',manga)
+app.use('/api',manga,require('./routers/handleError'))
 app.use('/api',comic)
 app.use('/api/chapter',chapter)
 app.listen(PORT, function () {

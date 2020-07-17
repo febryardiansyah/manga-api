@@ -148,7 +148,7 @@ function getMangaPage(req,res,next,page){
 //manga terbaru
 router.get('/manga/terbaru/:id',function(req,res,next) {
     const id = req.params.id
-    const url = `${baseUrl+'komik-terbaru/'+id}`
+    const url = `${baseUrl+'komik-terbaru/page/'+id}`
     request(url,(err, response,body) => {
         if(err || response.statusCode !== 200){
             next(err)
@@ -198,9 +198,11 @@ router.get('/genres',(req,res,next)=>{
 })
 
 //genreDetail
-router.get('/genres/:slug',(req,res,next)=>{
+router.get('/genres/:slug/:id',(req,res,next)=>{
     const slug = req.params.slug
-    const url = `genres/${slug}`
+    const id = req.params.id
+    const url = `genres/${slug}/page/${id}`
+    console.log(url);
     request(baseUrl+url,(err, response,body) => {
         if(err || response.statusCode !== 200){
             next(err)
