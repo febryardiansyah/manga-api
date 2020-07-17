@@ -102,9 +102,9 @@ router.get('/manga',(req,res,next)=>{
     getMangaPage(req,res,next,'daftar-manga/')
 })
 //mangalist pagination
-router.get('/manga/page/:id',(req,res,next)=>{
-    var id = req.params.id
-    var url = `daftar-manga/page/${id}`
+router.get('/manga/page/:pagenumber',(req,res,next)=>{
+    var pagenumber = req.params.pagenumber
+    var url = `daftar-manga/page/${pagenumber}`
     console.log(url);
     
     getMangaPage(req,res,next,url)
@@ -146,12 +146,14 @@ function getMangaPage(req,res,next,page){
 }
 
 //manga terbaru
-router.get('/manga/terbaru/:id',function(req,res,next) {
-    const id = req.params.id
-    const url = `${baseUrl+'komik-terbaru/page/'+id}`
+router.get('/manga/terbaru/:pagenumber',function(req,res,next) {
+    const pagenumber = req.params.pagenumber
+    const url = `${baseUrl+'komik-terbaru/page/'+pagenumber}`
     request(url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err)
+            res.status(404).json({
+                manga_list :[]
+            })
         }
         try {
             const $ = cheerio.load(body)
@@ -198,14 +200,16 @@ router.get('/genres',(req,res,next)=>{
 })
 
 //genreDetail
-router.get('/genres/:slug/:id',(req,res,next)=>{
+router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
     const slug = req.params.slug
-    const id = req.params.id
-    const url = `genres/${slug}/page/${id}`
+    const pagenumber = req.params.pagenumber
+    const url = `genres/${slug}/page/${pagenumber}`
     console.log(url);
     request(baseUrl+url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err)
+            res.status(404).json({
+                manga_list :[]
+            })
         }
         try {
             const $ = cheerio.load(body)
@@ -228,12 +232,14 @@ router.get('/genres/:slug/:id',(req,res,next)=>{
 })
 
 //manga popular pagination
-router.get('/manga/popular/:id',function(req,res,next) {
-    const id = req.params.id
-    const url = `${baseUrl+'populer/page/'+id}`
+router.get('/manga/popular/:pagenumber',function(req,res,next) {
+    const pagenumber = req.params.pagenumber
+    const url = `${baseUrl+'populer/page/'+pagenumber}`
     request(url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err)
+            res.status(404).json({
+                manga_list :[]
+            })
         }
         try {
             const $ = cheerio.load(body)
@@ -282,5 +288,42 @@ router.get('/recomended',(req,res,next)=>{
         }
     })
 })
+
+//manhua
+router.get('/manhua/:pagenumber',(req,res) =>{
+    const url = req.params.pagenumber
+    getManhuaManhwa(req,res,`manhua/page/${url}`)
+})
+//manhwa
+router.get('/manhwa/:pagenumber',(req,res) =>{
+    const url = req.params.pagenumber
+    getManhuaManhwa(req,res,`manhwa/page/${url}`)
+})
+function getManhuaManhwa(req,res,url) {
+    request(baseUrl+url,(err, response,body) => {
+        if(err || response.statusCode !== 200){
+            res.status(404).json({
+                manga_list :[]
+            })
+        }
+        try {
+            const $ = cheerio.load(body)
+            const element = $('.film-list')
+            var thumb,title,score,endpoint,type
+            var manga_list = []
+            element.find('.animepost').each(function () {
+                title = $(this).find('.bigor').find('.tt').text()
+                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
+                type = $(this).find('a > .limit').find('span').text()
+                thumb = $(this).find('.limit > img').attr('data-lazy-src') || $(this).find('.limit > img').attr('src')
+                score = parseFloat($(this).find('.bigor > .adds').find('i').text())
+                manga_list.push({title,type,thumb,score,endpoint})
+            })
+            res.json({manga_list})
+        } catch (error) {
+            console.log(error.message);
+        }
+    })
+}
 
 module.exports = router
