@@ -14,7 +14,7 @@ router.get('/:slug', (req, res,next) => {
 
     request(url,(err, response,body) => {
         if (err || response.statusCode !==200){
-            next(err)
+            return next(err)
         }
         try {
             const $ = cheerio.load(body)            

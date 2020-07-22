@@ -7,7 +7,7 @@ const baseUrl = require('../constants/urls')
 router.get('/manga/popular', (req, res,next) => {
     request(baseUrl,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 status:"404"
             })
         }
@@ -47,7 +47,7 @@ router.get('/manga/:slug',(req,res,next) => {
 
     request(url,(err,response,body) => {
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 status:"404"
             })
         }
@@ -126,7 +126,7 @@ function getMangaPage(req,res,next,page){
     request(baseUrl+page,(err,response,body)=>{
         console.log(baseUrl+page)
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 status:"404",
                 manga_list
             })
@@ -160,7 +160,7 @@ router.get('/manga/terbaru/:pagenumber',function(req,res,next) {
     const url = `${baseUrl+'komik-terbaru/page/'+pagenumber}`
     request(url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 manga_list :[]
             })
         }
@@ -189,7 +189,7 @@ router.get('/manga/terbaru/:pagenumber',function(req,res,next) {
 router.get('/genres',(req,res,next)=>{
     request(baseUrl+'daftar-genre/',(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err)
+            return next(err)
         }
         try {
             const $ = cheerio.load(body)
@@ -216,7 +216,7 @@ router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
     console.log(url);
     request(baseUrl+url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 manga_list :[]
             })
         }
@@ -246,7 +246,7 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
     const url = `${baseUrl+'populer/page/'+pagenumber}`
     request(url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 manga_list :[]
             })
         }
@@ -275,7 +275,7 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
 router.get('/recomended',(req,res,next)=>{
     request(baseUrl,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            next(err)
+            return next(err)
         }
         try {
             const $ = cheerio.load(body)
@@ -311,7 +311,7 @@ router.get('/manhwa/:pagenumber',(req,res) =>{
 function getManhuaManhwa(req,res,url) {
     request(baseUrl+url,(err, response,body) => {
         if(err || response.statusCode !== 200){
-            res.json({
+            return res.json({
                 manga_list :[]
             })
         }
