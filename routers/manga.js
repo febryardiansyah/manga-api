@@ -7,6 +7,10 @@ const baseUrl = require('../constants/urls')
 router.get('/manga/popular', (req, res,next) => {
     request(baseUrl,(err, response,body) => {
         if(err || response.statusCode !== 200){
+            res.status(404)
+            .json({
+                status:"404"
+            })
             next(err)
         }
         try {
@@ -45,17 +49,22 @@ router.get('/manga/:slug',(req,res,next) => {
 
     request(url,(err,response,body) => {
         if(err || response.statusCode !== 200){
+            res.status(404)
+            .json({
+                status:"404"
+            })
             next(err)
         }
         const $ = cheerio.load(body)
         const infoanime = $('.infoanime')
         const desc = $('.desc')
         const eps_list = $('.eps_lst > .listeps')
-        var detail = {}
-        var genre_list = []
-        var chapter = []
-        var title,status,released,updated_on,author,type,posted_on,genre_name,
-        thumb,score,synopsis,chapter_title,chapter_endpoint,chapter_uploaded
+        let detail = {}
+        let genre_list = []
+        let chapter = []
+        let title,status,released,updated_on,author,type,posted_on,genre_name,
+        thumb,score,synopsis,chapter_title,chapter_endpoint,chapter_uploaded,manga_endpoint
+        manga_endpoint = slug
         infoanime.filter(function (){
             title = $(this).find('.entry-title').text().replace('Komik ','')
             thumb = $(this).find('img').attr('data-lazy-src') || $(this).find('img').attr('src')
@@ -91,7 +100,7 @@ router.get('/manga/:slug',(req,res,next) => {
                 chapter.push({chapter_title,chapter_endpoint,chapter_uploaded})
             })         
         })
-        detail = ({title,thumb,status,released,type,author,
+        detail = ({title,manga_endpoint,thumb,status,released,type,author,
             updated_on,posted_on,score,genre_list,synopsis,chapter})
         res.json(detail)
     })
@@ -121,6 +130,11 @@ function getMangaPage(req,res,next,page){
     request(baseUrl+page,(err,response,body)=>{
         console.log(baseUrl+page)
         if(err || response.statusCode !== 200){
+            res.status(404)
+            .json({
+                status:"404",
+                manga_list
+            })
             next(err)
         }
         try {
