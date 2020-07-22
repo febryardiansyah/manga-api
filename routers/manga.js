@@ -95,7 +95,7 @@ router.get('/cari/:query',function(req,res,next){
             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
             thumb = $(this).find('.bgei > img').attr('data-src')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
-            title = $(this).find('.kan').find('h3').text()
+            title = $(this).find('.kan').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
             updated_on = $(this).find('.kan > span').text()
             manga_list.push({title,thumb,type,endpoint,updated_on})
         })
