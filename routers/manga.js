@@ -11,7 +11,6 @@ router.get('/manga/popular', (req, res,next) => {
             .json({
                 status:"404"
             })
-            next(err)
         }
         try {
             const $ = cheerio.load(body)
@@ -53,7 +52,6 @@ router.get('/manga/:slug',(req,res,next) => {
             .json({
                 status:"404"
             })
-            next(err)
         }
         const $ = cheerio.load(body)
         const infoanime = $('.infoanime')
@@ -102,7 +100,7 @@ router.get('/manga/:slug',(req,res,next) => {
         })
         detail = ({title,manga_endpoint,thumb,status,released,type,author,
             updated_on,posted_on,score,genre_list,synopsis,chapter})
-        res.json(detail)
+        res.status(200).json(detail)
     })
 })
 
@@ -152,7 +150,7 @@ function getMangaPage(req,res,next,page){
                 manga_list.push({title,thumb,type,score,endpoint})
             })
 
-            res.json({manga_list})
+            res.status(200).json({manga_list})
         } catch (error) {
             console.log(error.message);
         }
@@ -183,7 +181,7 @@ router.get('/manga/terbaru/:pagenumber',function(req,res,next) {
                 update = $(this).find('.adds > .datech').text()
                 manga_list.push({title,chapter,type,thumb,endpoint,update})
             })
-            res.json({manga_list})
+            res.status(200).json({manga_list})
         } catch (error) {
             console.log(error.message);
         }
@@ -206,7 +204,7 @@ router.get('/genres',(req,res,next)=>{
                 endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/genres/','')
                 list_genre.push({title,endpoint})
             })
-            res.json({list_genre})
+            res.status(200).json({list_genre})
         } catch (error) {
             console.log(error.message);
         }
