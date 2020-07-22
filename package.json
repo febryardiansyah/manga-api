@@ -11,10 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "helmet": "^3.23.3",
-    "request": "^2.88.2"
+    "helmet": "^3.23.3"
   }
 }

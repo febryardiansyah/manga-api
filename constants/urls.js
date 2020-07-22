@@ -1,3 +1,3 @@
-const baseUrl = 'https://bacakomik.co/'
+const baseUrl = 'https://komiku.co.id/'
 
 module.exports = baseUrl

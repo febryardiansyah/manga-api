@@ -1,337 +1,227 @@
 const router = require('express').Router()
 const cheerio = require('cheerio')
-const request = require('request')
 const baseUrl = require('../constants/urls')
+const { default: Axios } = require('axios')
+const replaceMangaPage = 'https://komiku.co.id/manga/'
 
-//manga popular
+//manga popular ----Ignore this for now --------
 router.get('/manga/popular', (req, res,next) => {
-    request(baseUrl,(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return res.json({
-                status:"404"
-            })
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.senc').children().first().find('.sencs>.widget-post')
-            .children().first().find('ul>li')
-            var link,thumb,title,genre,score
-            var manga_list = []
-            
-
-            element.each(function(){
-                $(this).find('.imgseries').filter(function(){
-                    link = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                    thumb = $(this).find('img').attr('data-lazy-src')
-                    
-                })
-                $(this).find('.leftseries').filter(function () {
-                    title = $(this).find('a').text()
-                    genre = $(this).find('span').eq(0).text()
-                    score = $(this).find('.rating >i').text()
-                })
-                manga_list.push({title,link,thumb,genre,score})
-                
-            })
-            res.json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
-    })
+   res.send('nothing')
 })
 
-//detail manga
-router.get('/manga/:slug',(req,res,next) => {
+//detail manga  ---- Done -----
+router.get('/manga/detail/:slug',(req,res,next) => {
     const slug = req.params.slug
-    const url = `${baseUrl+slug}`
-
-    request(url,(err,response,body) => {
-        if(err || response.statusCode !== 200){
-            return res.json({
-                status:"404"
-            })
-        }
-        const $ = cheerio.load(body)
-        const infoanime = $('.infoanime')
+    const url = `${baseUrl+'manga/'+slug}`
+    console.log(url);
+    Axios.get(url).then(response=>{
+        const $ = cheerio.load(response.data)
+        const element = $('.perapih')
         const desc = $('.desc')
         const eps_list = $('.eps_lst > .listeps')
         let detail = {}
         let genre_list = []
         let chapter = []
         let title,status,released,updated_on,author,type,posted_on,genre_name,
-        thumb,score,synopsis,chapter_title,chapter_endpoint,chapter_uploaded,manga_endpoint
+        thumb,synopsis,chapter_title,chapter_endpoint,manga_endpoint
         manga_endpoint = slug
-        infoanime.filter(function (){
-            title = $(this).find('.entry-title').text().replace('Komik ','')
-            thumb = $(this).find('img').attr('data-lazy-src') || $(this).find('img').attr('src')
-            $(this).find('.infox').filter(function(){
-                status = $(this).find('.spe>span').first().text().replace('Status: ','')
-                author = $(this).find('.spe>span').eq(1).text().replace('Author: ','')
-                released = parseInt($(this).find('.spe>span').eq(2).text().replace('Released: ',''))
-                type = $(this).find('.spe>span').eq(3).text().replace('Type: ','')
-                posted_on = $(this).find('.spe>span').eq(5).text().replace('Posted on: ','')
-                updated_on = $(this).find('.spe>span').eq(6).text().replace('Updated on: ','')
-            })
-            $(this).find('.static-manga > .static-data').filter(function(){
-                score = parseFloat($(this).find('.static-score').find('i').text())
-            })
-            $(this).find('.genre-info > a').each(function(){
-                genre_name = $(this).text()
-                genre_list.push({genre_name})
-            })
+        thumb = element.find('.ims > img').attr('src')
+        element.find('.inftable > tbody').filter(function (){
+            title = $(this).children().eq(0).find('td:nth-child(2)').text().replace('Komik','')
+            type = $(this).children().eq(2).find('td:nth-child(2)').text()
+            author = $(this).children().eq(4).find('td:nth-child(2)').text()
+            status = $(this).children().eq(5).find('td:nth-child(2)').text()
         })
-        desc.filter(function (){
-            synopsis = $(this).children().eq(1).find('p').text()
-
-        })    
-        eps_list.children().eq(1).filter(function(){
-            $(this).find('ul > li').each(function(){
-                $(this).find('.lchx').filter(function(){
-                    chapter_title = $(this).find('a').text()
-                    chapter_endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/','')
-                })
-                $(this).find('.dt').filter(function(){
-                    chapter_uploaded = $(this).find('a').text()
-                })
-                chapter.push({chapter_title,chapter_endpoint,chapter_uploaded})
-            })         
+        element.find('.genre > li').each(function () {
+            genre_name = $(this).find('a').text()
+            genre_list.push({genre_name})
         })
-        detail = ({title,manga_endpoint,thumb,status,released,type,author,
-            updated_on,posted_on,score,genre_list,synopsis,chapter})
+        element.find('#Sinopsis').filter(function () {
+            synopsis = $(this).find('p').text()
+        })
+        element.find('#Chapter').find('.chapter > ._3Rsjq').find('tr > td.judulseries').each(function (index,el) {
+            let inSpan = $(el).find('span').text()
+            chapter_title = $(el).text().replace(inSpan,'')
+            chapter_endpoint = $(el).find('a').attr('href').replace(baseUrl,'')
+            chapter.push({chapter_title,chapter_endpoint})
+        })
+        detail = ({title,manga_endpoint,type,thumb,status,released,type,author,
+            updated_on,posted_on,genre_list,synopsis,chapter})
         res.status(200).json(detail)
+    }).catch(err =>{
+        res.send(err)
     })
 })
 
-//manga list
-router.get('/manga',(req,res,next)=>{
-    getMangaPage(req,res,next,'daftar-manga/')
-})
-//mangalist pagination
+//mangalist pagination  -------Done------
 router.get('/manga/page/:pagenumber',(req,res,next)=>{
     var pagenumber = req.params.pagenumber
-    var url = `daftar-manga/page/${pagenumber}`
+    var url = `manga/page/${pagenumber}`
     console.log(url);
     
-    getMangaPage(req,res,next,url)
+    Axios.get(baseUrl+url).then(response=>{
+        const $ = cheerio.load(response.data)
+            const element = $('.perapih')
+            var manga_list = []
+            var title,type,updated_on,endpoint,thumb,chapter
+
+            element.find('.daftar > .bge').each(function () {
+                title = $(this).find('.kan > a').find('h3').text()
+                endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+                type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
+                updated_on = $(this).find('.kan > span').text()
+                thumb = $(this).find('.bgei > a').find('img').attr('src')
+                chapter = $(this).find('.mree').text()
+                manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
+            })
+
+            res.status(200).json({manga_list})
+    }).then(error => {
+        res.send(error)
+    })
 })
-//serach manga
+
+//serach manga ------Done-----------
 router.get('/cari/:query',function(req,res,next){
     const query = req.params.query
-    const url = `?s=${query}`
+    const url = `?post_type=manga&s=${query}`
     console.log(url);
-    getMangaPage(req,res,next,url)
-})
-
-function getMangaPage(req,res,next,page){
-    request(baseUrl+page,(err,response,body)=>{
-        console.log(baseUrl+page)
-        if(err || response.statusCode !== 200){
-            return res.json({
-                status:"404",
-                manga_list
-            })
-            next(err)
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.popular')
-            var manga_list = []
-            var title,type,score,endpoint,thumb
-
-            element.find('.animepost').each(function () {
-                title = $(this).find('.bigors > a').text()
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                type = $(this).find('a > .limit').find('span').text()
-                score = parseFloat($(this).find('.bigors > .adds').find('i').text())
-                thumb = $(this).find('a > .limit').find('img').attr('src') || $(this).find('a > .limit').find('img').attr('data-lazy-src')
-                manga_list.push({title,thumb,type,score,endpoint})
-            })
-
-            res.status(200).json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
-    })
-}
-
-//manga terbaru
-router.get('/manga/terbaru/:pagenumber',function(req,res,next) {
-    const pagenumber = req.params.pagenumber
-    const url = `${baseUrl+'komik-terbaru/page/'+pagenumber}`
-    request(url,(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return res.json({
-                manga_list :[]
-            })
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.listupd')
-            var manga_list = []
-            var type,title,chapter,update,endpoint,thumb
-            element.find('.animepost').each(function(){
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                type = $(this).find('.limit > span').text()
-                thumb = $(this).find('.limit > img').attr('data-lazy-src') || $(this).find('.limit > img').attr('src')
-                title = $(this).find('.bigor > a').find('.tt > h4').text()
-                chapter = $(this).find('.adds > a').text()
-                update = $(this).find('.adds > .datech').text()
-                manga_list.push({title,chapter,type,thumb,endpoint,update})
-            })
-            res.status(200).json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
+    Axios.get(baseUrl+url).then(response =>{
+        const $ = cheerio.load(response.data)
+        const element = $('.daftar')
+        let manga_list = []
+        let title,thumb,type,endpoint,updated_on
+        element.find('.bge').each(function(){
+            endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+            thumb = $(this).find('.bgei > img').attr('data-src')
+            type = $(this).find('.bgei > .tpe1_inf').find('b').text()
+            title = $(this).find('.kan').find('h3').text()
+            updated_on = $(this).find('.kan > span').text()
+            manga_list.push({title,thumb,type,endpoint,updated_on})
+        })
+        res.json(manga_list)
+    }).catch(err=>{
+        res.send(err)
     })
 })
 
-//genreList
+//genreList  -----Done-----
 router.get('/genres',(req,res,next)=>{
-    request(baseUrl+'daftar-genre/',(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return next(err)
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.post-show')
+    Axios.get(baseUrl+'daftar-genre/').then((response)=>{
+            const $ = cheerio.load(response.data)
+            const element = $('.daftar')
             var list_genre = []
             var title,endpoint
-            element.find('.genrelist > li').each(function () {
+            element.find('.genre > li').each(function () {
                 title = $(this).find('a').text()
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/genres/','')
+                endpoint = $(this).find('a').attr('href').replace('https://komiku.co.id/genre/','')
                 list_genre.push({title,endpoint})
             })
-            res.status(200).json({list_genre})
-        } catch (error) {
-            console.log(error.message);
-        }
+            res.json({list_genre})
+    }).catch(error =>{
+        res.send(error)
     })
 })
 
-//genreDetail
+//genreDetail ----Done-----
 router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
     const slug = req.params.slug
     const pagenumber = req.params.pagenumber
-    const url = `genres/${slug}/page/${pagenumber}`
+    const url = `genre/${slug}/page/${pagenumber}`
     console.log(url);
-    request(baseUrl+url,(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return res.json({
-                manga_list :[]
-            })
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.film-list')
-            var thumb,title,score,endpoint,type
-            var manga_list = []
-            element.find('.animepost').each(function () {
-                title = $(this).find('.bigors').find('.tt > h4').text()
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                type = $(this).find('a > .limit').find('span').text()
-                thumb = $(this).find('.limit > img').attr('data-lazy-src') || $(this).find('.limit > img').attr('src')
-                score = parseFloat($(this).find('.bigors > .adds').find('i').text())
-                manga_list.push({title,type,thumb,score,endpoint})
-            })
-            res.json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
+    Axios.get(baseUrl+url).then(response =>{
+        const $ = cheerio.load(response.data)
+        const element = $('.daftar')
+        var thumb,title,endpoint,type
+        var manga_list = []
+        element.find('.bge').each(function () {
+            title = $(this).find('.kan').find('h3').text()
+            endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+            type = $(this).find('.bgei > .tpe1_inf').find('b').text()
+            thumb = $(this).find('.bgei > img').attr('data-src')
+            manga_list.push({title,type,thumb,endpoint})
+        })
+        res.json({manga_list})
+    }).catch(err =>{
+        res.send(err)
     })
 })
 
-//manga popular pagination
+//manga popular pagination ----- Done ------
 router.get('/manga/popular/:pagenumber',function(req,res,next) {
     const pagenumber = req.params.pagenumber
-    const url = `${baseUrl+'populer/page/'+pagenumber}`
-    request(url,(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return res.json({
-                manga_list :[]
-            })
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.listupd')
-            var manga_list = []
-            var type,title,chapter,update,endpoint,thumb
-            element.find('.animepost').each(function(){
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                type = $(this).find('.limit > span').text()
-                thumb = $(this).find('.limit > img').attr('data-lazy-src') || $(this).find('.limit > img').attr('src')
-                title = $(this).find('.bigor > a').find('.tt > h2').text()
-                chapter = $(this).find('.adds > a').text().replace(' ','')
-                update = $(this).find('.adds > .datech').text()
-                manga_list.push({title,chapter,type,thumb,endpoint,update})
-            })
-            res.json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
+    const url = baseUrl+`other/rekomendasi/page/${pagenumber}/?orderby=meta_value_num&category_name=0`
+    Axios.get(url).then(response =>{
+        const $ = cheerio.load(response.data)
+        const element = $('.daftar')
+        let thumb,title,endpoint,type,upload_on
+        let manga_list = []
+        element.find('.bge').each(function () {
+            title = $(this).find('.kan').find('h3').text()
+            endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+            type = $(this).find('.bgei > .tpe1_inf').find('b').text()
+            thumb = $(this).find('.bgei > img').attr('data-src')
+            upload_on = $(this).find('.kan').find('span').text()
+            manga_list.push({title,type,thumb,endpoint,upload_on})
+        })
+        res.json({manga_list})
+    }).catch(err=>{
+        res.send(err)
     })
 })
 
-//recomended
-router.get('/recomended',(req,res,next)=>{
-    request(baseUrl,(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return next(err)
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.listupd')
-            var manga_list = []
-            var type,title,chapter,update,endpoint,thumb
-            element.find('.animepost').each(function(){
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                type = $(this).find('.limit > span').text()
-                thumb = $(this).find('.limit > img').attr('data-lazy-src') || $(this).find('.limit > img').attr('src')
-                title = $(this).find('.bigor > a').find('.tt > h4').text()
-                chapter = $(this).find('.adds > a').text().replace(' ','')
-                update = $(this).find('.adds > .datech').text()
-                manga_list.push({title,chapter,type,thumb,endpoint,update})
-            })
-            res.json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
+//recomended ---done---
+router.get('/recomended',(req,res)=>{
+    Axios.get(baseUrl).then((response)=>{
+        const $ = cheerio.load(response.data);
+        const element = $('.perapih').find('.grd')
+        let manga_list = []
+        let type,title,chapter,update,endpoint,thumb
+        element.each(function(){
+            console.log($(this).text())
+            title = $(this).find('.popunder > h4').text().replace(' ','')
+            thumb = $(this).find('.gmbr1').find('img').attr('data-src')
+            endpoint = $(this).find('.popunder').attr('href').replace(replaceMangaPage,'')
+            manga_list.push({title,chapter,type,thumb,endpoint,update})
+        })
+        res.json({manga_list})
+    }).catch(function(err) {
+        res.send(err)
     })
 })
 
-//manhua
+//manhua  ------Done------
 router.get('/manhua/:pagenumber',(req,res) =>{
-    const url = req.params.pagenumber
-    getManhuaManhwa(req,res,`manhua/page/${url}`)
+    getManhuaManhwa(req,res,`manhua`)
 })
 //manhwa
 router.get('/manhwa/:pagenumber',(req,res) =>{
-    const url = req.params.pagenumber
-    getManhuaManhwa(req,res,`manhwa/page/${url}`)
+    getManhuaManhwa(req,res,`manhwa`)
 })
-function getManhuaManhwa(req,res,url) {
-    request(baseUrl+url,(err, response,body) => {
-        if(err || response.statusCode !== 200){
-            return res.json({
-                manga_list :[]
-            })
-        }
-        try {
-            const $ = cheerio.load(body)
-            const element = $('.film-list')
-            var thumb,title,score,endpoint,type
+function getManhuaManhwa(req,res,type) {
+    var pagenumber = req.params.pagenumber
+    var url = `manga/page/${pagenumber}/?category_name=${type}`
+    console.log(url);
+    
+    Axios.get(baseUrl+url).then(response=>{
+        const $ = cheerio.load(response.data)
+            const element = $('.perapih')
             var manga_list = []
-            element.find('.animepost').each(function () {
-                title = $(this).find('.bigor').find('.tt').text()
-                endpoint = $(this).find('a').attr('href').replace('https://bacakomik.co/manga/','')
-                type = $(this).find('a > .limit').find('span').text()
-                thumb = $(this).find('.limit > img').attr('data-lazy-src') || $(this).find('.limit > img').attr('src')
-                score = parseFloat($(this).find('.bigor > .adds').find('i').text())
-                manga_list.push({title,type,thumb,score,endpoint})
+            var title,type,updated_on,endpoint,thumb,chapter
+
+            element.find('.daftar > .bge').each(function () {
+                title = $(this).find('.kan > a').find('h3').text()
+                endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+                type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
+                updated_on = $(this).find('.kan > span').text()
+                thumb = $(this).find('.bgei > a').find('img').attr('src')
+                chapter = $(this).find('.mree').text()
+                manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
             })
-            res.json({manga_list})
-        } catch (error) {
-            console.log(error.message);
-        }
+
+            res.status(200).json({manga_list})
+    }).catch(err =>{
+        res.send(err)
     })
 }
 
