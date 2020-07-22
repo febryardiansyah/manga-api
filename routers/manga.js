@@ -42,7 +42,7 @@ router.get('/manga/detail/:slug',(req,res,next) => {
         element.find('#Chapter').find('.chapter > ._3Rsjq').find('tr > td.judulseries').each(function (index,el) {
             let inSpan = $(el).find('span').text()
             chapter_title = $(el).text().replace(inSpan,'')
-            chapter_endpoint = $(el).find('a').attr('href').replace(baseUrl,'')
+            chapter_endpoint = $(el).find('a').attr('href')
             chapter.push({chapter_title,chapter_endpoint})
         })
         detail = ({title,manga_endpoint,type,thumb,status,released,type,author,
@@ -66,7 +66,7 @@ router.get('/manga/page/:pagenumber',(req,res,next)=>{
             var title,type,updated_on,endpoint,thumb,chapter
 
             element.find('.daftar > .bge').each(function () {
-                title = $(this).find('.kan > a').find('h3').text()
+                title = $(this).find('.kan > a').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
                 endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
                 type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
                 updated_on = $(this).find('.kan > span').text()
@@ -135,7 +135,7 @@ router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
         var thumb,title,endpoint,type
         var manga_list = []
         element.find('.bge').each(function () {
-            title = $(this).find('.kan').find('h3').text()
+            title = $(this).find('.kan').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
             thumb = $(this).find('.bgei > img').attr('data-src')
@@ -157,7 +157,7 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
         let thumb,title,endpoint,type,upload_on
         let manga_list = []
         element.find('.bge').each(function () {
-            title = $(this).find('.kan').find('h3').text()
+            title = $(this).find('.kan').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
             thumb = $(this).find('.bgei > img').attr('data-src')
@@ -210,7 +210,7 @@ function getManhuaManhwa(req,res,type) {
             var title,type,updated_on,endpoint,thumb,chapter
 
             element.find('.daftar > .bge').each(function () {
-                title = $(this).find('.kan > a').find('h3').text()
+                title = $(this).find('.kan > a').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
                 endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
                 type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
                 updated_on = $(this).find('.kan > span').text()
