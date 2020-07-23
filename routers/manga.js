@@ -16,8 +16,6 @@ router.get('/manga/detail/:slug',(req,res,next) => {
     Axios.get(url).then(response=>{
         const $ = cheerio.load(response.data)
         const element = $('.perapih')
-        const desc = $('.desc')
-        const eps_list = $('.eps_lst > .listeps')
         let detail = {}
         let genre_list = []
         let chapter = []
@@ -54,27 +52,27 @@ router.get('/manga/detail/:slug',(req,res,next) => {
 
 //mangalist pagination  -------Done------
 router.get('/manga/page/:pagenumber',(req,res,next)=>{
-    var pagenumber = req.params.pagenumber
-    var url = `manga/page/${pagenumber}`
+    let pagenumber = req.params.pagenumber
+    let url = `manga/page/${pagenumber}`
     
     Axios.get(baseUrl+url).then(response=>{
         const $ = cheerio.load(response.data)
             const element = $('.perapih')
-            var manga_list = []
-            var title,type,updated_on,endpoint,thumb,chapter
+            let manga_list = []
+            let title,type,updated_on,endpoint,thumb,chapter
 
             element.find('.daftar > .bge').each(function () {
                 title = $(this).find('.kan > a').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
                 endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
                 type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
-                updated_on = $(this).find('.kan > span').text()
+                updated_on = $(this).find('.kan > span').text().split('• ')[1]
                 thumb = $(this).find('.bgei > a').find('img').attr('src')
                 chapter = $(this).find('.mree').text()
                 manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
             })
 
             res.status(200).json({manga_list})
-    }).then(error => {
+    }).catch(error => {
         res.send(error)
     })
 })
@@ -93,7 +91,7 @@ router.get('/cari/:query',function(req,res,next){
             thumb = $(this).find('.bgei > img').attr('data-src')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
             title = $(this).find('.kan').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
-            updated_on = $(this).find('.kan > span').text()
+            updated_on = $(this).find('.kan > span').text().split('• ')[1]
             manga_list.push({title,thumb,type,endpoint,updated_on})
         })
         res.json(manga_list)
@@ -157,7 +155,7 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
             thumb = $(this).find('.bgei > img').attr('data-src')
-            upload_on = $(this).find('.kan').find('span').text()
+            upload_on =  $(this).find('.kan').find('span').text().split('• ')[1]
             manga_list.push({title,type,thumb,endpoint,upload_on})
         })
         res.json({manga_list})
@@ -207,7 +205,7 @@ function getManhuaManhwa(req,res,type) {
                 title = $(this).find('.kan > a').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
                 endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
                 type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
-                updated_on = $(this).find('.kan > span').text()
+                updated_on = $(this).find('.kan > span').text().split('• ')[1]
                 thumb = $(this).find('.bgei > a').find('img').attr('src')
                 chapter = $(this).find('.mree').text()
                 manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
