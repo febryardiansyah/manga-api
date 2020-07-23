@@ -13,7 +13,6 @@ router.get('/manga/popular', (req, res,next) => {
 router.get('/manga/detail/:slug',(req,res,next) => {
     const slug = req.params.slug
     const url = `${baseUrl+'manga/'+slug}`
-    console.log(url);
     Axios.get(url).then(response=>{
         const $ = cheerio.load(response.data)
         const element = $('.perapih')
@@ -41,8 +40,8 @@ router.get('/manga/detail/:slug',(req,res,next) => {
         })
         element.find('#Chapter').find('.chapter > ._3Rsjq').find('tr > td.judulseries').each(function (index,el) {
             let inSpan = $(el).find('span').text()
-            chapter_title = $(el).text().replace(inSpan,'')
-            chapter_endpoint = $(el).find('a').attr('href')
+            chapter_title = $(el).find('a').attr('title').replace(inSpan+' ','')
+            chapter_endpoint = $(el).find('a').attr('href').replace(baseUrl,'')
             chapter.push({chapter_title,chapter_endpoint})
         })
         detail = ({title,manga_endpoint,type,thumb,status,released,type,author,
@@ -57,7 +56,6 @@ router.get('/manga/detail/:slug',(req,res,next) => {
 router.get('/manga/page/:pagenumber',(req,res,next)=>{
     var pagenumber = req.params.pagenumber
     var url = `manga/page/${pagenumber}`
-    console.log(url);
     
     Axios.get(baseUrl+url).then(response=>{
         const $ = cheerio.load(response.data)
@@ -85,7 +83,6 @@ router.get('/manga/page/:pagenumber',(req,res,next)=>{
 router.get('/cari/:query',function(req,res,next){
     const query = req.params.query
     const url = `?post_type=manga&s=${query}`
-    console.log(url);
     Axios.get(baseUrl+url).then(response =>{
         const $ = cheerio.load(response.data)
         const element = $('.daftar')
@@ -128,14 +125,13 @@ router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
     const slug = req.params.slug
     const pagenumber = req.params.pagenumber
     const url = `genre/${slug}/page/${pagenumber}`
-    console.log(url);
     Axios.get(baseUrl+url).then(response =>{
         const $ = cheerio.load(response.data)
         const element = $('.daftar')
         var thumb,title,endpoint,type
         var manga_list = []
         element.find('.bge').each(function () {
-            title = $(this).find('.kan').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
+            title = $(this).find('.kan').find('h3').text().replace(' ','')
             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
             thumb = $(this).find('.bgei > img').attr('data-src')
@@ -157,7 +153,7 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
         let thumb,title,endpoint,type,upload_on
         let manga_list = []
         element.find('.bge').each(function () {
-            title = $(this).find('.kan').find('h3').text().replace('\n\t\t\t\t\t\t\t\t','')
+            title = $(this).find('.kan').find('h3').text().replace(' ','')
             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
             type = $(this).find('.bgei > .tpe1_inf').find('b').text()
             thumb = $(this).find('.bgei > img').attr('data-src')
@@ -178,8 +174,7 @@ router.get('/recomended',(req,res)=>{
         let manga_list = []
         let type,title,chapter,update,endpoint,thumb
         element.each(function(){
-            console.log($(this).text())
-            title = $(this).find('.popunder > h4').text().replace(' ','')
+            title = $(this).find('.popunder > h4').text().replace('\n\t\t\t\t\t\t\t\t','')
             thumb = $(this).find('.gmbr1').find('img').attr('data-src')
             endpoint = $(this).find('.popunder').attr('href').replace(replaceMangaPage,'')
             manga_list.push({title,chapter,type,thumb,endpoint,update})
@@ -201,7 +196,6 @@ router.get('/manhwa/:pagenumber',(req,res) =>{
 function getManhuaManhwa(req,res,type) {
     var pagenumber = req.params.pagenumber
     var url = `manga/page/${pagenumber}/?category_name=${type}`
-    console.log(url);
     
     Axios.get(baseUrl+url).then(response=>{
         const $ = cheerio.load(response.data)
