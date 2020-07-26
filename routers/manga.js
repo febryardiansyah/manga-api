@@ -2,6 +2,7 @@ const router = require('express').Router()
 const cheerio = require('cheerio')
 const baseUrl = require('../constants/urls')
 const { default: Axios } = require('axios')
+const on404 = require('./handleError').on404
 const replaceMangaPage = 'https://komiku.co.id/manga/'
 
 //manga popular ----Ignore this for now --------
@@ -73,7 +74,8 @@ router.get('/manga/page/:pagenumber',(req,res,next)=>{
 
             res.status(200).json({manga_list})
     }).catch(error => {
-        res.send(error)
+        on404(req,res)
+        console.log(err.message)
     })
 })
 
@@ -137,7 +139,8 @@ router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
         })
         res.json({manga_list})
     }).catch(err =>{
-        res.send(err)
+        on404(req,res)
+        console.log(err.message)
     })
 })
 
@@ -160,7 +163,8 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
         })
         res.json({manga_list})
     }).catch(err=>{
-        res.send(err)
+        on404(req,res)
+        console.log(err.message)
     })
 })
 
@@ -213,7 +217,8 @@ function getManhuaManhwa(req,res,type) {
 
             res.status(200).json({manga_list})
     }).catch(err =>{
-        res.send(err)
+        on404(req,res)
+        console.log(err.message)
     })
 }
 

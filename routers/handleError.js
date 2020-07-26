@@ -4,4 +4,10 @@ router.get('/', function (req, res){
     res.send('Welcome to Manga-API')
 })
 
-module.exports = router
+const on404 =(req,res) => {
+    res.status(404).json({
+        manga_list:[]
+    })
+}
+
+module.exports = {router,on404}

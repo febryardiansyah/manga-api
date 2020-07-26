@@ -1,0 +1,31 @@
+html {
+    display: table;
+    margin: auto;
+}
+body{
+    height: 100%;
+    background-color: #E8505B;
+    margin: 0;
+    color: white;
+}
+nav ul{
+    margin:0;
+    padding:0;
+    display:flex;
+    justify-content:space-between;
+    text-align: center;
+}
+nav li{
+    list-style: none;
+    padding:1em 0;
+}
+nav li a{
+    color: white;
+    font-weight: bold;
+    opacity: 0.5;
+    text-decoration:none ;
+    transition:0.3s;
+}
+nav li a:hover{
+    opacity: 1;
+}
