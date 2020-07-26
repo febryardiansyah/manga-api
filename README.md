@@ -14,28 +14,67 @@ Restful API Manga bahasa Indonesia built with ❤️ and node.js
 4. visit http://localhost:3000/api
 
 # Documentation
-__API__ __PATH__ = http://localhost:3000/api
-__ApI__ Version = `v1.0`
+__API__ __PATH__ = https://mangamint.glitch.me/api/
+</br>__ApI__ Version = `v1.0`
 
-## Get All Manga
+## All Manga
 Get Latest Manga Update
+```
+/manga/page/[pagenumber]
+```
+example : https://mangamint.glitch.me/api/manga/page/1
 
-```bash
-/manga/page/[pageNumber]
+## Popular Manga
+Get Popular Manga
 ```
+/manga/popular/[pageNumber]
+```
+example : https://mangamint.glitch.me/api/manga/popular/1
 
-Returns
+## Detail Manga
 ```
-bash
-{
-manga_list: [
-    {
-    title: "My Wife is a Demon Queen ",
-    thumb: "https://i0.wp.com/komiku.co.id/wp-content/uploads/Manhua-My-Wife-is-a-Demon-Queen.jpg?resize=450,235&quality=60",
-    type: "Manhua",
-    updated_on: "2 jam lalu Berwarna",
-    endpoint: "my-wife-is-a-demon-queen/",
-    chapter: "Chapter 212"
-    },
-]
+/manga/detail/[endpoint]
 ```
+example : https://mangamint.glitch.me/api/manga/detail/after-transformation-mine-and-her-wild-fantasy/
+
+## Search Manga by Name
+```
+/cari/[query]
+```
+example : https://mangamint.glitch.me/api/cari/komi%20san
+
+## Genre List
+```
+/genres
+```
+example : https://mangamint.glitch.me/api/genres
+
+## Genre Detail
+```
+/genres/[endpoint]/[pagenumber]
+```
+example : https://mangamint.glitch.me/api/genres/action/1
+
+## Recomended Manga
+```
+/recomended
+```
+example : https://mangamint.glitch.me/api/recomended
+
+## Manhua List (Chinese Comic)
+```
+/manhua/[pageNumber]
+```
+example : https://mangamint.glitch.me/api/manhua/1
+
+## Manhwa List (Korean Comic)
+```
+/manhwa/[pageNumber]
+```
+example : https://mangamint.glitch.me/api/manhua/1
+
+## Chapter
+```
+/chapter/[chapterEndpoint]
+```
+example : https://mangamint.glitch.me/api/chapter/after-transformation-mine-and-her-wild-fantasy-chapter-70-bahasa-indonesia/
