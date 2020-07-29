@@ -78,3 +78,8 @@ example : https://mangamint.glitch.me/api/manhua/1
 /chapter/[chapterEndpoint]
 ```
 example : https://mangamint.glitch.me/api/chapter/after-transformation-mine-and-her-wild-fantasy-chapter-70-bahasa-indonesia/
+
+## Showcase
+App Showcase that use this API (you can add your app by edit this readme)
+
+- [MangaMint](https://github.com/febryardiansyah/manga_mint) Flutter Manga Reader Application by [Febry ardiansyah](https://github.com/febryardiansyah)
