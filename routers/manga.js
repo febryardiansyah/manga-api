@@ -168,8 +168,8 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
     })
 })
 
-//recomended ---done---
-router.get('/recomended',(req,res)=>{
+//recommended ---done---
+router.get('/recommended',(req,res)=>{
     Axios.get(baseUrl).then((response)=>{
         const $ = cheerio.load(response.data);
         const element = $('.perapih').find('.grd')
