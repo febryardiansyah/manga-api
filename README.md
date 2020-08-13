@@ -55,11 +55,11 @@ example : https://mangamint.glitch.me/api/genres
 ```
 example : https://mangamint.glitch.me/api/genres/action/1
 
-## Recomended Manga
+## Recommended Manga
 ```
-/recomended
+/recommended
 ```
-example : https://mangamint.glitch.me/api/recomended
+example : https://mangamint.glitch.me/api/recommended
 
 ## Manhua List (Chinese Comic)
 ```
