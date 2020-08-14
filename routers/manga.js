@@ -205,6 +205,7 @@ router.get('/recomended',(req,res)=>{
         // credentials: 'same-origin',
         // method: 'GET',
     }).then((response)=>{
+        console.log(response.headers);
         if(response.status === 200){
             const $ = cheerio.load(response.data);
             const element = $('.perapih').find('.grd')
