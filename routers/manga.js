@@ -199,7 +199,7 @@ router.get('/recomended',(req,res)=>{
     Axios.get(baseUrl,{
         headers: {
             'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'text/html',
+            'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
           },
         // withCredentials: true,
         // credentials: 'same-origin',
