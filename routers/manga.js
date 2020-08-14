@@ -4,6 +4,7 @@ const baseUrl = require('../constants/urls')
 const { default: Axios } = require('axios')
 const on404 = require('./handleError').on404
 const replaceMangaPage = 'https://komiku.co.id/manga/'
+const got = require('got')
 
 //manga popular ----Ignore this for now --------
 router.get('/manga/popular', (req, res,next) => {
@@ -52,35 +53,52 @@ router.get('/manga/detail/:slug',(req,res,next) => {
 })
 
 //mangalist pagination  -------Done------
-router.get('/manga/page/:pagenumber',(req,res,next)=>{
+router.get('/manga/page/:pagenumber',async(req,res,next)=>{
     let pagenumber = req.params.pagenumber
     let url = `manga/page/${pagenumber}`
-    
-    Axios.get(baseUrl+url,{
-        headers: {
-            'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-        }
-    }).then(response=>{
-        const $ = cheerio.load(response.data)
-            const element = $('.perapih')
-            let manga_list = []
-            let title,type,updated_on,endpoint,thumb,chapter
+    const response = await got(baseUrl+url)
+    const $ = cheerio.load(response.body)
+        const element = $('.perapih')
+        let manga_list = []
+        let title,type,updated_on,endpoint,thumb,chapter
 
-            element.find('.daftar > .bge').each(function () {
-                title = $(this).find('.kan > a').find('h3').text().trim()
-                endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
-                type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
-                updated_on = $(this).find('.kan > span').text().split('• ')[1]
-                thumb = $(this).find('.bgei > a').find('img').attr('src')
-                chapter = $(this).find('.mree').text()
-                manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
-            })
+        element.find('.daftar > .bge').each(function () {
+            title = $(this).find('.kan > a').find('h3').text().trim()
+            endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+            type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
+            updated_on = $(this).find('.kan > span').text().split('• ')[1]
+            thumb = $(this).find('.bgei > a').find('img').attr('src')
+            chapter = $(this).find('.mree').text()
+            manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
+        })
+        return res.status(200).json({manga_list})
+    // Axios.get(baseUrl+url,{
+    //     headers: {
+    //         'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+    //     }
+    // }).then(response=>{
+    //     if(response.status === 200){
+    //         const $ = cheerio.load(response.data)
+    //         const element = $('.perapih')
+    //         let manga_list = []
+    //         let title,type,updated_on,endpoint,thumb,chapter
 
-            res.status(200).json({manga_list})
-    }).catch(error => {
-        on404(req,res)
-        console.log(err.message)
-    })
+    //         element.find('.daftar > .bge').each(function () {
+    //             title = $(this).find('.kan > a').find('h3').text().trim()
+    //             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+    //             type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
+    //             updated_on = $(this).find('.kan > span').text().split('• ')[1]
+    //             thumb = $(this).find('.bgei > a').find('img').attr('src')
+    //             chapter = $(this).find('.mree').text()
+    //             manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
+    //         })
+    //         return res.status(200).json({manga_list})
+    //     }
+    //     return res.send({message:response.status})
+    // }).catch(error => {
+    //     on404(req,res)
+    //     console.log(err.message)
+    // })
 })
 
 //serach manga ------Done-----------
