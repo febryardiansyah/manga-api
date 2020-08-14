@@ -56,53 +56,53 @@ router.get('/manga/detail/:slug',(req,res,next) => {
 router.get('/manga/page/:pagenumber',async(req,res,next)=>{
     let pagenumber = req.params.pagenumber
     let url = `manga/page/${pagenumber}`
-    try {
-        const response = await got(baseUrl+url)
-        const $ = cheerio.load(response.body)
-        const element = $('.perapih')
-        let manga_list = []
-        let title,type,updated_on,endpoint,thumb,chapter
+    // try {
+    //     const response = await got.get(baseUrl+url)
+    //     const $ = cheerio.load(response.body)
+    //     const element = $('.perapih')
+    //     let manga_list = []
+    //     let title,type,updated_on,endpoint,thumb,chapter
 
-        element.find('.daftar > .bge').each(function () {
-            title = $(this).find('.kan > a').find('h3').text().trim()
-            endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
-            type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
-            updated_on = $(this).find('.kan > span').text().split('• ')[1]
-            thumb = $(this).find('.bgei > a').find('img').attr('src')
-            chapter = $(this).find('.mree').text()
-            manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
-        })
-        return res.status(200).json({manga_list})
-    } catch (error) {
-        res.send({message:error})
-    }
-    // Axios.get(baseUrl+url,{
-    //     headers: {
-    //         'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-    //     }
-    // }).then(response=>{
-    //     if(response.status === 200){
-    //         const $ = cheerio.load(response.data)
-    //         const element = $('.perapih')
-    //         let manga_list = []
-    //         let title,type,updated_on,endpoint,thumb,chapter
+    //     element.find('.daftar > .bge').each(function () {
+    //         title = $(this).find('.kan > a').find('h3').text().trim()
+    //         endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+    //         type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
+    //         updated_on = $(this).find('.kan > span').text().split('• ')[1]
+    //         thumb = $(this).find('.bgei > a').find('img').attr('src')
+    //         chapter = $(this).find('.mree').text()
+    //         manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
+    //     })
+    //     return res.status(200).json({manga_list})
+    // } catch (error) {
+    //     res.send({message:error})
+    // }
+    Axios.get(baseUrl+url,{
+        headers: {
+            'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+        }
+    }).then(response=>{
+        if(response.status === 200){
+            const $ = cheerio.load(response.data)
+            const element = $('.perapih')
+            let manga_list = []
+            let title,type,updated_on,endpoint,thumb,chapter
 
-    //         element.find('.daftar > .bge').each(function () {
-    //             title = $(this).find('.kan > a').find('h3').text().trim()
-    //             endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
-    //             type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
-    //             updated_on = $(this).find('.kan > span').text().split('• ')[1]
-    //             thumb = $(this).find('.bgei > a').find('img').attr('src')
-    //             chapter = $(this).find('.mree').text()
-    //             manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
-    //         })
-    //         return res.status(200).json({manga_list})
-    //     }
-    //     return res.send({message:response.status})
-    // }).catch(error => {
-    //     on404(req,res)
-    //     console.log(err.message)
-    // })
+            element.find('.daftar > .bge').each(function () {
+                title = $(this).find('.kan > a').find('h3').text().trim()
+                endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
+                type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
+                updated_on = $(this).find('.kan > span').text().split('• ')[1]
+                thumb = $(this).find('.bgei > a').find('img').attr('src')
+                chapter = $(this).find('.mree').text()
+                manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
+            })
+            return res.status(200).json({manga_list})
+        }
+        return res.send({message:response.status})
+    }).catch(error => {
+        on404(req,res)
+        console.log(err.message)
+    })
 })
 
 //serach manga ------Done-----------
@@ -196,20 +196,31 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
 
 //recommended ---done---
 router.get('/recomended',(req,res)=>{
-    Axios.get(baseUrl).then((response)=>{
-        const $ = cheerio.load(response.data);
-        const element = $('.perapih').find('.grd')
-        let manga_list = []
-        let type,title,chapter,update,endpoint,thumb
-        element.each(function(){
-            title = $(this).find('.popunder > h4').text().trim()
-            thumb = $(this).find('.gmbr1').find('img').attr('data-src')
-            endpoint = $(this).find('.popunder').attr('href').replace(replaceMangaPage,'')
-            manga_list.push({title,chapter,type,thumb,endpoint,update})
-        })
-        res.json({manga_list})
+    Axios.get(baseUrl,{
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          },
+        withCredentials: true,
+        credentials: 'same-origin',
+        method: 'GET',
+    }).then((response)=>{
+        if(response.status === 200){
+            const $ = cheerio.load(response.data);
+            const element = $('.perapih').find('.grd')
+            let manga_list = []
+            let type,title,chapter,update,endpoint,thumb
+            element.each(function(){
+                title = $(this).find('.popunder > h4').text().trim()
+                thumb = $(this).find('.gmbr1').find('img').attr('data-src')
+                endpoint = $(this).find('.popunder').attr('href').replace(replaceMangaPage,'')
+                manga_list.push({title,chapter,type,thumb,endpoint,update})
+            })
+            return res.json({manga_list})
+        }
+        return res.send({message:response.status})
     }).catch(function(err) {
-        res.send(err)
+        res.send({err})
     })
 })
 
