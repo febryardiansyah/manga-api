@@ -199,11 +199,11 @@ router.get('/recomended',(req,res)=>{
     Axios.get(baseUrl,{
         headers: {
             'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/html',
           },
-        withCredentials: true,
-        credentials: 'same-origin',
-        method: 'GET',
+        // withCredentials: true,
+        // credentials: 'same-origin',
+        // method: 'GET',
     }).then((response)=>{
         if(response.status === 200){
             const $ = cheerio.load(response.data);
