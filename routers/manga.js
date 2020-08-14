@@ -56,8 +56,9 @@ router.get('/manga/detail/:slug',(req,res,next) => {
 router.get('/manga/page/:pagenumber',async(req,res,next)=>{
     let pagenumber = req.params.pagenumber
     let url = `manga/page/${pagenumber}`
-    const response = await got(baseUrl+url)
-    const $ = cheerio.load(response.body)
+    try {
+        const response = await got(baseUrl+url)
+        const $ = cheerio.load(response.body)
         const element = $('.perapih')
         let manga_list = []
         let title,type,updated_on,endpoint,thumb,chapter
@@ -72,6 +73,9 @@ router.get('/manga/page/:pagenumber',async(req,res,next)=>{
             manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
         })
         return res.status(200).json({manga_list})
+    } catch (error) {
+        res.send({message:error})
+    }
     // Axios.get(baseUrl+url,{
     //     headers: {
     //         'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
