@@ -12,10 +12,12 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "axios-cookiejar-support": "^1.0.0",
     "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "got": "^11.5.2",
-    "helmet": "^3.23.3"
+    "helmet": "^3.23.3",
+    "tough-cookie": "^4.0.0"
   }
 }

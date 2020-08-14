@@ -1,10 +1,12 @@
 const router = require('express').Router()
 const cheerio = require('cheerio')
 const baseUrl = require('../constants/urls')
-const { default: Axios } = require('axios')
+const Axios = require('axios').default
 const on404 = require('./handleError').on404
 const replaceMangaPage = 'https://komiku.co.id/manga/'
 const got = require('got')
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+const tough = require('tough-cookie');
 
 //manga popular ----Ignore this for now --------
 router.get('/manga/popular', (req, res,next) => {
@@ -194,30 +196,18 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
     })
 })
 
+axiosCookieJarSupport(Axios)
+const cookiejar = new tough.CookieJar()
 //recommended ---done---
 router.get('/recomended',(req,res)=>{
     Axios.get(baseUrl,{
+        jar:cookiejar,
+        withCredentials:true,
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Content-Type': 'text/html; charset=UTF-8',
-            'transfer-encoding': 'chunked',
           },
-          'set-cookie': [
-            '__cfduid=d37d0a61782aabbd022899d161dbf0c9b1597415255; expires=Sun, 13-Sep-20 14:27:35 GMT; path=/; domain=.komiku.co.id; HttpOnly; SameSite=Lax; Secure'
-          ],
-          link: '<https://komiku.co.id/wp-json/>; rel="https://api.w.org/"',
-          vary: 'Accept-Encoding',
-          'x-litespeed-cache': 'hit',
-          'cf-cache-status': 'DYNAMIC',
-          'cf-request-id': '048ef786cf0000e4cc3ca02200000001',
-          'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
-          server: 'cloudflare',
-          'cf-ray': '5c2b5b847f2be4cc-LAX'
-        // withCredentials: true,
-        // credentials: 'same-origin',
-        // method: 'GET',
     }).then((response)=>{
-        console.log(response.headers);
         if(response.status === 200){
             const $ = cheerio.load(response.data);
             const element = $('.perapih').find('.grd')
