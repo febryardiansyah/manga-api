@@ -56,7 +56,11 @@ router.get('/manga/page/:pagenumber',(req,res,next)=>{
     let pagenumber = req.params.pagenumber
     let url = `manga/page/${pagenumber}`
     
-    Axios.get(baseUrl+url).then(response=>{
+    Axios.get(baseUrl+url,{
+        headers: {
+            'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+        }
+    }).then(response=>{
         const $ = cheerio.load(response.data)
             const element = $('.perapih')
             let manga_list = []
