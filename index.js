@@ -8,7 +8,7 @@ const helmet = require('helmet')
 
 app.use(cors())
 app.use(helmet())
-app.use('/api',require('./routers/handleError').router,manga)
+app.use('/api',manga)
 app.use(express.static('./public'))
 app.use('/api/chapter',chapter)
 app.use('*',(req,res)=>{

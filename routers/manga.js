@@ -2,14 +2,8 @@ const router = require('express').Router()
 const cheerio = require('cheerio')
 const baseUrl = require('../constants/urls')
 const Axios = require('axios').default
-const on404 = require('./handleError').on404
 const replaceMangaPage = 'https://komiku.co.id/manga/'
-const got = require('got')
-
-const axiosProxy = require('axios-https-proxy-fix').default
-const tunnel = require('tunnel')
-const axios = require('../helpers/apiservice')
-
+const AxiosService = require('../helpers/axiosService')
 
 //manga popular ----Ignore this for now --------
 router.get('/manga/popular', (req, res,next) => {
@@ -19,8 +13,8 @@ router.get('/manga/popular', (req, res,next) => {
 //detail manga  ---- Done -----
 router.get('/manga/detail/:slug',(req,res,next) => {
     const slug = req.params.slug
-    const url = `${baseUrl+'manga/'+slug}`
-    axios.get('manga/'+slug).then(response=>{
+    // const url = `${baseUrl+'manga/'+slug}`
+    AxiosService('manga/'+slug).then(response=>{
         const $ = cheerio.load(response.data)
         const element = $('.perapih')
         let detail = {}
@@ -52,8 +46,8 @@ router.get('/manga/detail/:slug',(req,res,next) => {
         detail = ({title,manga_endpoint,type,thumb,status,released,type,author,
             updated_on,posted_on,genre_list,synopsis,chapter})
         res.status(200).json(detail)
-    }).catch(err =>{
-        res.send(err)
+    }).catch(error =>{
+        res.send({message:error.message})
     })
 })
 
@@ -81,11 +75,7 @@ router.get('/manga/page/:pagenumber',async(req,res,next)=>{
     // } catch (error) {
     //     res.send({message:error})
     // }
-    Axios.get(baseUrl+url,{
-        headers: {
-            'content-type':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-        }
-    }).then(response=>{
+    AxiosService(url).then(response=>{
         if(response.status === 200){
             const $ = cheerio.load(response.data)
             const element = $('.perapih')
@@ -105,8 +95,7 @@ router.get('/manga/page/:pagenumber',async(req,res,next)=>{
         }
         return res.send({message:response.status})
     }).catch(error => {
-        on404(req,res)
-        console.log(err.message)
+        res.send({message:error.message})
     })
 })
 
@@ -114,7 +103,7 @@ router.get('/manga/page/:pagenumber',async(req,res,next)=>{
 router.get('/cari/:query',function(req,res,next){
     const query = req.params.query
     const url = `?post_type=manga&s=${query}`
-    Axios.get(baseUrl+url).then(response =>{
+    AxiosService(url).then(response =>{
         const $ = cheerio.load(response.data)
         const element = $('.daftar')
         let manga_list = []
@@ -128,14 +117,14 @@ router.get('/cari/:query',function(req,res,next){
             manga_list.push({title,thumb,type,endpoint,updated_on})
         })
         res.json(manga_list)
-    }).catch(err=>{
-        res.send(err)
+    }).catch(error=>{
+        res.send({message:error.message})
     })
 })
 
 //genreList  -----Done-----
 router.get('/genres',(req,res,next)=>{
-    axios.get('daftar-genre/').then((response)=>{
+    AxiosService('daftar-genre/').then((response)=>{
             const $ = cheerio.load(response.data)
             const element = $('.daftar')
             var list_genre = []
@@ -147,7 +136,7 @@ router.get('/genres',(req,res,next)=>{
             })
             res.json({list_genre})
     }).catch(error =>{
-        res.send(error)
+        res.send({message:error.message})
     })
 })
 
@@ -156,7 +145,7 @@ router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
     const slug = req.params.slug
     const pagenumber = req.params.pagenumber
     const url = `genre/${slug}/page/${pagenumber}`
-    Axios.get(baseUrl+url).then(response =>{
+    AxiosService(url).then(response =>{
         const $ = cheerio.load(response.data)
         const element = $('.daftar')
         var thumb,title,endpoint,type
@@ -170,16 +159,15 @@ router.get('/genres/:slug/:pagenumber',(req,res,next)=>{
         })
         res.json({manga_list})
     }).catch(err =>{
-        on404(req,res)
-        console.log(err.message)
+        res.send({message:error.message})
     })
 })
 
 //manga popular pagination ----- Done ------
 router.get('/manga/popular/:pagenumber',function(req,res,next) {
     const pagenumber = req.params.pagenumber
-    const url = baseUrl+`other/rekomendasi/page/${pagenumber}/?orderby=meta_value_num&category_name=0`
-    Axios.get(url).then(response =>{
+    const url = `other/rekomendasi/page/${pagenumber}/?orderby=meta_value_num&category_name=0`
+    AxiosService(url).then(response =>{
         const $ = cheerio.load(response.data)
         const element = $('.daftar')
         let thumb,title,endpoint,type,upload_on
@@ -193,17 +181,15 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
             manga_list.push({title,type,thumb,endpoint,upload_on})
         })
         res.json({manga_list})
-    }).catch(err=>{
-        on404(req,res)
-        console.log(err.message)
+    }).catch(error=>{
+        res.send({message:error.message})
     })
 })
 
 //recommended ---done---
 router.get('/recomended',(req,res)=>{
-    axios.get().then((response)=>{
-        if(response.status === 200){
-            const $ = cheerio.load(response.data);
+    AxiosService().then(response =>{
+        const $ = cheerio.load(response.data);
             const element = $('.perapih').find('.grd')
             let manga_list = []
             let type,title,chapter,update,endpoint,thumb
@@ -214,11 +200,27 @@ router.get('/recomended',(req,res)=>{
                 manga_list.push({title,chapter,type,thumb,endpoint,update})
             })
             return res.json({manga_list})
-        }
-        return res.send({message:response.status})
-    }).catch(function(err) {
-        res.send({err})
+    }).catch(error=>{
+        res.send({message:error.message})
     })
+    // axios.get().then((response)=>{
+    //     if(response.status === 200){
+    //         const $ = cheerio.load(response.data);
+    //         const element = $('.perapih').find('.grd')
+    //         let manga_list = []
+    //         let type,title,chapter,update,endpoint,thumb
+    //         element.each(function(){
+    //             title = $(this).find('.popunder > h4').text().trim()
+    //             thumb = $(this).find('.gmbr1').find('img').attr('data-src')
+    //             endpoint = $(this).find('.popunder').attr('href').replace(replaceMangaPage,'')
+    //             manga_list.push({title,chapter,type,thumb,endpoint,update})
+    //         })
+    //         return res.json({manga_list})
+    //     }
+    //     return res.send({message:response.status})
+    // }).catch(function(err) {
+    //     res.send({err})
+    // })
 })
 
 //manhua  ------Done------
@@ -233,7 +235,7 @@ function getManhuaManhwa(req,res,type) {
     var pagenumber = req.params.pagenumber
     var url = `manga/page/${pagenumber}/?category_name=${type}`
     
-    Axios.get(baseUrl+url).then(response=>{
+    AxiosService(url).then(response=>{
         const $ = cheerio.load(response.data)
             const element = $('.perapih')
             var manga_list = []
@@ -251,8 +253,7 @@ function getManhuaManhwa(req,res,type) {
 
             res.status(200).json({manga_list})
     }).catch(err =>{
-        on404(req,res)
-        console.log(err.message)
+        res.send({message:error.message})
     })
 }
 

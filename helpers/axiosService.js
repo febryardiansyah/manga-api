@@ -15,4 +15,16 @@ axios.defaults.baseURL = baseUrl
 axios.defaults.httpsAgent = tunnelAgent
 axios.defaults.jar = cookiejar
 
-module.exports = axios
+const AxiosService = async(url) =>{
+    try {
+        const response = await axios.get(url)
+        if(response.status === 200){
+            return Promise.resolve(response)
+        }
+        return Promise.reject(new Error(response.status))
+    } catch (error) {
+        // console.log(error);
+        return Promise.reject(new Error(error))
+    }
+}
+module.exports = AxiosService
