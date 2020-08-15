@@ -21,9 +21,8 @@ const AxiosService = async(url) =>{
         if(response.status === 200){
             return Promise.resolve(response)
         }
-        return Promise.reject(new Error(response.status))
+        return Promise.reject(new Error(response))
     } catch (error) {
-        // console.log(error);
         return Promise.reject(new Error(error))
     }
 }
