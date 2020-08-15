@@ -12,15 +12,15 @@ router.get("/", (req, res) => {
 router.get("/:slug", (req, res) => {
   const slug = req.params.slug;
   const url = baseUrl + slug;
-  console.log(url);
-  // let link
-  // Axios.get(`https://pdf.komiku.co.id/${slug}`).then(response => {
-  //     const $ = cheerio.load(response.data)
-  //     const element = $('.title')
-  //     link = element.find('a').attr('href')
-  // }).catch(err=>{
-  //     console.log(err.message);
-  // })
+  let link
+  Axios.get(`https://pdf.komiku.co.id/${slug}`).then(response => {
+      const $ = cheerio.load(response.data)
+      const element = $('.title')
+      link = element.find('a').attr('href')
+      console.log(link);
+  }).catch(err=>{
+      console.log(err.message);
+  })
 
   AxiosService(slug)
     .then((response) => {
@@ -36,7 +36,7 @@ router.get("/:slug", (req, res) => {
       content.find(".dsk2").filter(function () {
         title = $(this).find("h1").text().replace("Komik ", "");
       });
-      // download_link = link
+      download_link = link
       content.find(".bc").filter(function () {
         $(this)
           .find("img")
