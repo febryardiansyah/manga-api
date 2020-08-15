@@ -3,24 +3,39 @@ const cheerio = require("cheerio");
 const baseUrl = require("../constants/urls");
 const { default: Axios } = require("axios");
 const AxiosService = require("../helpers/axiosService");
+const tunnel = require("tunnel");
+const axiosCookieJarSupport = require("axios-cookiejar-support").default;
+const tough = require("tough-cookie");
+axiosCookieJarSupport(Axios);
+const cookiejar = new tough.CookieJar();
 
+const tunnelAgent = tunnel.httpsOverHttp({
+  proxy: {
+    host: "180.244.73.12",
+    port: 8080,
+  },
+});
 router.get("/", (req, res) => {
   res.send("chapter");
 });
 
 //chapter ----done ----
-router.get("/:slug", (req, res) => {
+router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
   const url = baseUrl + slug;
-  let link
-  Axios.get(`https://pdf.komiku.co.id/${slug}`).then(response => {
-      const $ = cheerio.load(response.data)
-      const element = $('.title')
-      link = element.find('a').attr('href')
-      console.log(link);
-  }).catch(err=>{
-      console.log(err.message);
-  })
+  let link;
+  try {
+    let pdfResponse = await Axios.get(`https://pdf.komiku.co.id/${slug}`, {
+      httpsAgent: tunnelAgent,
+      jar: cookiejar,
+    });
+    const $ = cheerio.load(pdfResponse.data);
+    const element = $(".title");
+    link = element.find("a").attr("href");
+    console.log(link);
+  } catch (error) {
+    res.send({ message: error });
+  }
 
   AxiosService(slug)
     .then((response) => {
@@ -36,7 +51,7 @@ router.get("/:slug", (req, res) => {
       content.find(".dsk2").filter(function () {
         title = $(this).find("h1").text().replace("Komik ", "");
       });
-      download_link = link
+      download_link = link;
       content.find(".bc").filter(function () {
         $(this)
           .find("img")
