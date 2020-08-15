@@ -33,9 +33,8 @@ router.get("/:slug", async (req, res) => {
     const element = $(".title");
     link = element.find("a").attr("href");
     console.log(link);
-    AxiosService(slug)
-    .then((response) => {
-      const $ = cheerio.load(response.data);
+    const response = await AxiosService(slug)
+    const $ = cheerio.load(response.data);
       const content = $("#article");
       let chapter_image = [];
       let title,
@@ -58,10 +57,6 @@ router.get("/:slug", async (req, res) => {
           });
       });
       res.json({ title, chapter_endpoint, download_link, chapter_image });
-    })
-    .catch((error) => {
-      res.send({ message: error.message });
-    });
   } catch (error) {
     res.send({ message: error });
   }
