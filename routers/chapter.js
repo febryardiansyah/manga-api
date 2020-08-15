@@ -33,11 +33,7 @@ router.get("/:slug", async (req, res) => {
     const element = $(".title");
     link = element.find("a").attr("href");
     console.log(link);
-  } catch (error) {
-    res.send({ message: error });
-  }
-
-  AxiosService(slug)
+    AxiosService(slug)
     .then((response) => {
       const $ = cheerio.load(response.data);
       const content = $("#article");
@@ -66,6 +62,11 @@ router.get("/:slug", async (req, res) => {
     .catch((error) => {
       res.send({ message: error.message });
     });
+  } catch (error) {
+    res.send({ message: error });
+  }
+
+  
 });
 
 module.exports = router;
