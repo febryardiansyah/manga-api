@@ -248,7 +248,7 @@ router.get("/manga/popular/:pagenumber", function (req, res, next) {
 });
 
 //recommended ---done---
-router.get("/recommended", (req, res) => {
+router.get("/recomended", (req, res) => {
   AxiosService()
     .then((response) => {
       const $ = cheerio.load(response.data);
