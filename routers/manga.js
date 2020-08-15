@@ -5,12 +5,11 @@ const Axios = require('axios').default
 const on404 = require('./handleError').on404
 const replaceMangaPage = 'https://komiku.co.id/manga/'
 const got = require('got')
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
-const tough = require('tough-cookie');
-axiosCookieJarSupport(Axios)
-const cookiejar = new tough.CookieJar()
+
 const axiosProxy = require('axios-https-proxy-fix').default
 const tunnel = require('tunnel')
+const axios = require('../helpers/apiservice')
+
 
 //manga popular ----Ignore this for now --------
 router.get('/manga/popular', (req, res,next) => {
@@ -21,7 +20,7 @@ router.get('/manga/popular', (req, res,next) => {
 router.get('/manga/detail/:slug',(req,res,next) => {
     const slug = req.params.slug
     const url = `${baseUrl+'manga/'+slug}`
-    Axios.get(url).then(response=>{
+    axios.get('manga/'+slug).then(response=>{
         const $ = cheerio.load(response.data)
         const element = $('.perapih')
         let detail = {}
@@ -136,7 +135,7 @@ router.get('/cari/:query',function(req,res,next){
 
 //genreList  -----Done-----
 router.get('/genres',(req,res,next)=>{
-    Axios.get(baseUrl+'daftar-genre/').then((response)=>{
+    axios.get('daftar-genre/').then((response)=>{
             const $ = cheerio.load(response.data)
             const element = $('.daftar')
             var list_genre = []
@@ -200,18 +199,9 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
     })
 })
 
-const tunnelAgent = tunnel.httpsOverHttp({
-    proxy:{
-        host:'180.244.73.12',
-        port:8080
-    }
-})
 //recommended ---done---
 router.get('/recomended',(req,res)=>{
-    Axios.get(baseUrl,{
-        jar:cookiejar,
-        httpsAgent:tunnelAgent,
-    }).then((response)=>{
+    axios.get().then((response)=>{
         if(response.status === 200){
             const $ = cheerio.load(response.data);
             const element = $('.perapih').find('.grd')

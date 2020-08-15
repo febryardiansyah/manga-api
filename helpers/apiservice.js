@@ -1,0 +1,18 @@
+const axios = require('axios').default
+const tunnel = require('tunnel')
+const baseUrl = require('../constants/urls')
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+const tough = require('tough-cookie');
+axiosCookieJarSupport(axios)
+const cookiejar = new tough.CookieJar()
+const tunnelAgent = tunnel.httpsOverHttp({
+    proxy:{
+        host:'180.244.73.12',
+        port:8080
+    }
+})
+axios.defaults.baseURL = baseUrl
+axios.defaults.httpsAgent = tunnelAgent
+axios.defaults.jar = cookiejar
+
+module.exports = axios
