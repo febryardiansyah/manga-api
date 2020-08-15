@@ -202,13 +202,14 @@ router.get('/manga/popular/:pagenumber',function(req,res,next) {
 
 const tunnelAgent = tunnel.httpsOverHttp({
     proxy:{
-        host:'118.137.144.50',
+        host:'180.244.73.12',
         port:8080
     }
 })
 //recommended ---done---
 router.get('/recomended',(req,res)=>{
     Axios.get(baseUrl,{
+        jar:cookiejar,
         httpsAgent:tunnelAgent,
     }).then((response)=>{
         if(response.status === 200){
