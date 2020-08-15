@@ -29,8 +29,8 @@ router.get("/:slug", async (req, res) => {
       httpsAgent: tunnelAgent,
       jar: cookiejar,
     });
-    const $ = cheerio.load(pdfResponse.data);
-    const element = $(".title");
+    const pdf$ = cheerio.load(pdfResponse.data);
+    const element = pdf$(".title");
     link = element.find("a").attr("href");
     console.log(link);
     const response = await AxiosService(slug)
