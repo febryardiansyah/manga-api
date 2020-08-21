@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const cheerio = require("cheerio");
 const baseUrl = require("../constants/urls");
-const Axios = require("axios").default;
 const replaceMangaPage = "https://komiku.co.id/manga/";
 const AxiosService = require("../helpers/axiosService");
 

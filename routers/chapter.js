@@ -1,20 +1,7 @@
 const router = require("express").Router();
 const cheerio = require("cheerio");
-const baseUrl = require("../constants/urls");
-const { default: Axios } = require("axios");
 const AxiosService = require("../helpers/axiosService");
-const tunnel = require("tunnel");
-const axiosCookieJarSupport = require("axios-cookiejar-support").default;
-const tough = require("tough-cookie");
-axiosCookieJarSupport(Axios);
-const cookiejar = new tough.CookieJar();
 
-const tunnelAgent = tunnel.httpsOverHttp({
-  proxy: {
-    host: "202.137.25.8",
-    port: 8080,
-  },
-});
 router.get("/", (req, res) => {
   res.send("chapter");
 });
@@ -24,12 +11,13 @@ router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
   let link;
   try {
+    //download
     let pdfResponse = await AxiosService(`https://pdf.komiku.co.id/${slug}`);
     const pdf$ = cheerio.load(pdfResponse.data);
     const element = pdf$(".title");
     link = element.find("a").attr("href");
-    console.log(link);
 
+    //response
     const response = await AxiosService(slug);
     const $ = cheerio.load(response.data);
     const content = $("#article");
@@ -43,7 +31,8 @@ router.get("/:slug", async (req, res) => {
     content.find(".dsk2").filter(function () {
       title = $(this).find("h1").text().replace("Komik ", "");
     });
-    // download_link = link;
+    download_link = link.split('  ').join('%20%20');
+    console.log(download_link);
     content.find(".bc").filter(function () {
       $(this)
         .find("img")
