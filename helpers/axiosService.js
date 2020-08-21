@@ -7,12 +7,12 @@ axiosCookieJarSupport(axios);
 const cookiejar = new tough.CookieJar();
 const tunnelAgent = tunnel.httpsOverHttp({
   proxy: {
-    host: "202.137.25.8",
+    host: "103.106.219.121",
     port: 8080,
   },
 });
 axios.defaults.baseURL = baseUrl;
-axios.defaults.httpsAgent = tunnelAgent;
+// axios.defaults.httpsAgent = tunnelAgent;
 axios.defaults.jar = cookiejar;
 
 const AxiosService = async (url) => {

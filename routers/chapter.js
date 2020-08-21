@@ -22,17 +22,13 @@ router.get("/", (req, res) => {
 //chapter ----done ----
 router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
-  const url = baseUrl + slug;
   let link;
   try {
-    // let pdfResponse = await Axios.get(`https://pdf.komiku.co.id/${slug}`, {
-    //   httpsAgent: tunnelAgent,
-    //   jar: cookiejar,
-    // });
-    // const pdf$ = cheerio.load(pdfResponse.data);
-    // const element = pdf$(".title");
-    // link = element.find("a").attr("href");
-    // console.log(link);
+    let pdfResponse = await AxiosService(`https://pdf.komiku.co.id/${slug}`);
+    const pdf$ = cheerio.load(pdfResponse.data);
+    const element = pdf$(".title");
+    link = element.find("a").attr("href");
+    console.log(link);
 
     const response = await AxiosService(slug);
     const $ = cheerio.load(response.data);
