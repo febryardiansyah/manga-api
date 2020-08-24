@@ -10,84 +10,73 @@ router.get("/manga/popular", (req, res, next) => {
 });
 
 //detail manga  ---- Done -----
-router.get("/manga/detail/:slug", (req, res, next) => {
+router.get("/manga/detail/:slug", async (req, res, next) => {
   const slug = req.params.slug;
-  // const url = `${baseUrl+'manga/'+slug}`
-  AxiosService("manga/" + slug)
-    .then((response) => {
-      const $ = cheerio.load(response.data);
-      const element = $(".perapih");
-      let detail = {};
-      let genre_list = [];
-      let chapter = [];
-      let title,
-        status,
-        released,
-        updated_on,
-        author,
-        type,
-        posted_on,
-        genre_name,
-        thumb,
-        synopsis,
+  const response = await AxiosService("manga/" + slug);
+  const $ = cheerio.load(response.data);
+  const element = $(".perapih");
+  let genre_list = [];
+  let chapter = [];
+  const obj = {};
+  element.find(".inftable > tbody").filter(function () {
+    obj.title = $(this)
+      .children()
+      .eq(0)
+      .find("td:nth-child(2)")
+      .text()
+      .replace("Komik", "")
+      .trim();
+    obj.type = $(this).children().eq(2).find("td:nth-child(2)").text();
+    obj.author = $(this).children().eq(4).find("td:nth-child(2)").text();
+    obj.status = $(this).children().eq(5).find("td:nth-child(2)").text();
+  });
+  obj.manga_endpoint = slug;
+  obj.thumb = element.find(".ims > img").attr("src");
+
+  element.find(".genre > li").each(function () {
+    let genre_name = $(this).find("a").text();
+    genre_list.push({ genre_name });
+    obj.genre_list = genre_list;
+  });
+  element.find("#Sinopsis").filter(function () {
+    obj.synopsis = $(this).find("p").text().trim();
+  });
+  element
+    .find("#Chapter")
+    .find(".chapter > ._3Rsjq")
+    .find("tr > td.judulseries")
+    .each(async function (index, el) {
+      let inSpan = $(el).find("span").text();
+      let chapter_title = $(el)
+        .find("a")
+        .attr("title")
+        .replace(inSpan + " ", "");
+      let chapter_endpoint = $(el).find("a").attr("href").replace(baseUrl, "");
+      let chapter_pages;
+      // const chapterResponse = await AxiosService(`chapter/${chapter_endpoint}`)
+      // const chapter$ = cheerio.load(chapterResponse.data)
+      // chapter_pages = chapter$("#article").find(".bc").find('img').length
+      // const chapterResponse = await AxiosService(`chapter/${chapter_endpoint}`)
+      // console.log(_getChapterPages);
+      chapter.push({
         chapter_title,
+        chapter_pages,
         chapter_endpoint,
-        manga_endpoint;
-      manga_endpoint = slug;
-      thumb = element.find(".ims > img").attr("src");
-      element.find(".inftable > tbody").filter(function () {
-        title = $(this)
-          .children()
-          .eq(0)
-          .find("td:nth-child(2)")
-          .text()
-          .replace("Komik", "");
-        type = $(this).children().eq(2).find("td:nth-child(2)").text();
-        author = $(this).children().eq(4).find("td:nth-child(2)").text();
-        status = $(this).children().eq(5).find("td:nth-child(2)").text();
       });
-      element.find(".genre > li").each(function () {
-        genre_name = $(this).find("a").text();
-        genre_list.push({ genre_name });
-      });
-      element.find("#Sinopsis").filter(function () {
-        synopsis = $(this).find("p").text();
-      });
-      element
-        .find("#Chapter")
-        .find(".chapter > ._3Rsjq")
-        .find("tr > td.judulseries")
-        .each(function (index, el) {
-          let inSpan = $(el).find("span").text();
-          chapter_title = $(el)
-            .find("a")
-            .attr("title")
-            .replace(inSpan + " ", "");
-          chapter_endpoint = $(el).find("a").attr("href").replace(baseUrl, "");
-          chapter.push({ chapter_title, chapter_endpoint });
-        });
-      detail = {
-        title,
-        manga_endpoint,
-        type,
-        thumb,
-        status,
-        released,
-        type,
-        author,
-        updated_on,
-        posted_on,
-        genre_list,
-        synopsis,
-        chapter,
-      };
-      res.status(200).json(detail);
-    })
-    .catch((error) => {
-      res.send({ message: error.message });
+      obj.chapter = chapter;
     });
+
+  res.status(200).json(obj);
 });
 
+const _getChapterPages = async (chapter_endpoint) => {
+  try {
+    const chapterResponse = await AxiosService(`chapter/${chapter_endpoint}`);
+    return Promise.resolve(chapterResponse.data);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
 //mangalist pagination  -------Done------
 router.get("/manga/page/:pagenumber", async (req, res, next) => {
   let pagenumber = req.params.pagenumber;

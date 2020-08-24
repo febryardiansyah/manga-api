@@ -15,7 +15,7 @@ router.get("/:slug", async (req, res) => {
     let pdfResponse = await AxiosService(`https://pdf.komiku.co.id/${slug}`);
     const pdf$ = cheerio.load(pdfResponse.data);
     const element = pdf$(".title");
-    link = element.find("a").attr("href");
+    link = element.find("a").attr("href").split("  ").join("%20%20");
 
     //response
     const response = await AxiosService(slug);
@@ -26,13 +26,15 @@ router.get("/:slug", async (req, res) => {
       chapter_image_link,
       image_number,
       chapter_endpoint,
-      download_link;
+      download_link,
+      chapter_pages;
     chapter_endpoint = slug + "/";
     content.find(".dsk2").filter(function () {
       title = $(this).find("h1").text().replace("Komik ", "");
     });
-    download_link = link.split('  ').join('%20%20');
+    download_link = link.split(" ").join("%20");
     console.log(download_link);
+    chapter_pages = content.find(".bc").find("img").length;
     content.find(".bc").filter(function () {
       $(this)
         .find("img")
@@ -42,7 +44,13 @@ router.get("/:slug", async (req, res) => {
           chapter_image.push({ image_number, chapter_image_link });
         });
     });
-    res.json({ title, chapter_endpoint, download_link, chapter_image });
+    res.json({
+      title,
+      chapter_endpoint,
+      download_link,
+      chapter_pages,
+      chapter_image,
+    });
   } catch (error) {
     res.send({ message: error });
   }
