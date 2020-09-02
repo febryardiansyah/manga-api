@@ -178,10 +178,11 @@ router.get("/genres", (req, res, next) => {
           .replace("https://komiku.co.id/genre/", "");
         list_genre.push({ title, endpoint });
       });
+      list_genre = list_genre.splice(0,59)
       res.json({ list_genre });
     })
     .catch((error) => {
-      res.send({ message: error.message });
+      res.send({ message: error });
     });
 });
 
