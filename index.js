@@ -11,6 +11,12 @@ app.use(helmet());
 app.use("/api", manga);
 app.use(express.static("./public"));
 app.use("/api/chapter", chapter);
+app.use('/api',(req,res) =>{
+  res.send({
+    status:true,
+    message: 'For more info, check out https://github.com/febryardiansyah/manga-api'
+  })
+})
 app.use("*", (req, res) => {
   res.status(404).json({
     success: false,
