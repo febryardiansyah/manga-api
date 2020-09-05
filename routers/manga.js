@@ -81,26 +81,7 @@ const _getChapterPages = async (chapter_endpoint) => {
 router.get("/manga/page/:pagenumber", async (req, res, next) => {
   let pagenumber = req.params.pagenumber;
   let url = `manga/page/${pagenumber}`;
-  // try {
-  //     const response = await got.get(baseUrl+url)
-  //     const $ = cheerio.load(response.body)
-  //     const element = $('.perapih')
-  //     let manga_list = []
-  //     let title,type,updated_on,endpoint,thumb,chapter
 
-  //     element.find('.daftar > .bge').each(function () {
-  //         title = $(this).find('.kan > a').find('h3').text().trim()
-  //         endpoint = $(this).find('a').attr('href').replace(replaceMangaPage,'')
-  //         type = $(this).find('.bgei > a').find('.tpe1_inf > b').text()
-  //         updated_on = $(this).find('.kan > span').text().split('• ')[1]
-  //         thumb = $(this).find('.bgei > a').find('img').attr('src')
-  //         chapter = $(this).find('.mree').text()
-  //         manga_list.push({title,thumb,type,updated_on,endpoint,chapter})
-  //     })
-  //     return res.status(200).json({manga_list})
-  // } catch (error) {
-  //     res.send({message:error})
-  // }
   AxiosService(url)
     .then((response) => {
       if (response.status === 200) {

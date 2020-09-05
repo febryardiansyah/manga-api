@@ -16,14 +16,16 @@ axios.defaults.baseURL = baseUrl;
 axios.defaults.jar = cookiejar;
 
 const AxiosService = async (url) => {
-  try {
-    const response = await axios.get(url);
-    if (response.status === 200) {
-      return Promise.resolve(response);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.get(url);
+      if (response.status === 200) {
+        return resolve(response);
+      }
+      return reject(response);
+    } catch (error) {
+      return reject(error.message);
     }
-    return Promise.reject(new Error(response));
-  } catch (error) {
-    return Promise.reject(new Error(error));
-  }
+  });
 };
 module.exports = AxiosService;
