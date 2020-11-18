@@ -11,22 +11,22 @@ router.get("/", (req, res) => {
 //chapter ----done ----
 router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
-  let link;
-  try {
-    //download
-    let pdfResponse = await AxiosService(`https://pdf.komiku.co.id/${slug}`);
-    const pdf$ = cheerio.load(pdfResponse.data);
-    const element = pdf$(".title");
-    link = element
-      .find("a")
-      .attr("href")
-      .split("  ")
-      .join("%20%20")
-      .split(" ")
-      .join("%20");
-  } catch (error) {
-    link = "no download link";
-  }
+  // let link;
+  // try {
+  //   //download
+  //   let pdfResponse = await AxiosService(`https://pdf.komiku.co.id/${slug}`);
+  //   const pdf$ = cheerio.load(pdfResponse.data);
+  //   const element = pdf$(".title");
+  //   link = element
+  //     .find("a")
+  //     .attr("href")
+  //     .split("  ")
+  //     .join("%20%20")
+  //     .split(" ")
+  //     .join("%20");
+  // } catch (error) {
+  //   link = "no download link";
+  // }
   try {
     //response
     const response = await AxiosService(slug);
@@ -40,7 +40,7 @@ router.get("/:slug", async (req, res) => {
     getTitlePages.filter(() => {
       obj.title = $(getTitlePages).find("h1").text().replace("Komik ", "");
     });
-    obj.download_link = link;
+    // obj.download_link = link;
 
     const getPages = content.find(".bc").find("img")
     obj.chapter_pages = getPages.length;
@@ -55,7 +55,8 @@ router.get("/:slug", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.send({
-      message: error
+      message: error,
+      chapter_image :[]
     });
   }
 });

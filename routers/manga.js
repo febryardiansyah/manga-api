@@ -87,7 +87,7 @@ router.get("/manga/detail/:slug", async (req, res) => {
 //mangalist pagination  -------Done------
 router.get("/manga/page/:pagenumber", async (req, res) => {
   let pagenumber = req.params.pagenumber;
-  let url = `manga/page/${pagenumber}`;
+  let url = `manga/page/${pagenumber}/?a`;
 
   try {
     const response = await AxiosService(url);
@@ -327,7 +327,7 @@ router.get("/manhwa/:pagenumber", async (req, res) => {
 
 const getManhuaManhwa = async (req, res, type) => {
   var pagenumber = req.params.pagenumber;
-  var url = `manga/page/${pagenumber}/?category_name=${type}`;
+  var url = `https://komiku.id/pustaka/page/${pagenumber}/?orderby&category_name=${type}&genre&genre2&status`;
 
   try {
     const response = await AxiosService(url);
