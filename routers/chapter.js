@@ -11,25 +11,9 @@ router.get("/", (req, res) => {
 //chapter ----done ----
 router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
-  // let link;
-  // try {
-  //   //download
-  //   let pdfResponse = await AxiosService(`https://pdf.komiku.co.id/${slug}`);
-  //   const pdf$ = cheerio.load(pdfResponse.data);
-  //   const element = pdf$(".title");
-  //   link = element
-  //     .find("a")
-  //     .attr("href")
-  //     .split("  ")
-  //     .join("%20%20")
-  //     .split(" ")
-  //     .join("%20");
-  // } catch (error) {
-  //   link = "no download link";
-  // }
   try {
     //response
-    const response = await AxiosService(slug);
+    const response = await AxiosService(`ch/${slug}`);
     const $ = cheerio.load(response.data);
     const content = $("#article");
     let chapter_image = [];
@@ -42,11 +26,11 @@ router.get("/:slug", async (req, res) => {
     });
     // obj.download_link = link;
 
-    const getPages = content.find(".bc").find("img")
+    const getPages = $('#Baca_Komik > img')
     obj.chapter_pages = getPages.length;
     getPages.each((i, el) => {
       chapter_image.push({
-        chapter_image_link: $(el).attr("src"),
+        chapter_image_link: 'https://i0.wp.com/img.komiku.co.id/nor'+$(el).attr("data-src"),
         image_number: i + 1,
       });
     });
@@ -55,6 +39,7 @@ router.get("/:slug", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.send({
+      status: false,
       message: error,
       chapter_image :[]
     });
