@@ -14,8 +14,8 @@ router.get("/manga/popular", async (req, res) => {
 //mangalist pagination  -------Done------
 router.get("/manga/page/:pagenumber", async (req, res) => {
   let pagenumber = req.params.pagenumber;
-  let url = pagenumber === '1' ?'https://data.komiku.id/pustaka/?orderby=&category_name=manga&genre=&genre2=&status='
-  :`https://data.komiku.id/pustaka/page/${pagenumber}/?orderby&category_name=manga&genre&genre2&status`;
+  let url = pagenumber === '1' ?'https://data.komiku.id/pustaka/'
+  :`https://data.komiku.id/pustaka/page/${pagenumber}/`;
 
   try {
     const response = await AxiosService(url);
@@ -144,7 +144,7 @@ router.get("/cari/:query", async (req, res) => {
     let title, thumb, type, endpoint, updated_on;
     element.find(".bge").each((idx, el) => {
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "").replace('/manga/','');
-      thumb = $("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
       title = $(el).find(".kan").find("h3").text().trim();
       updated_on = $(el).find("div.kan > p").text().split('.')[0].trim();
@@ -156,7 +156,11 @@ router.get("/cari/:query", async (req, res) => {
         updated_on,
       });
     });
-    res.json(manga_list);
+    res.json({
+      status: true,
+      message: "success",
+      manga_list
+    });
   } catch (error) {
     res.send({
       status: false,
@@ -208,7 +212,7 @@ router.get("/genres/:slug/:pagenumber", async (req, res) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
       type = $(el).find("div.bgei > a > div").find("b").text();
-      thumb = $(el).find(".bgei > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       manga_list.push({
         title,
         type,
@@ -245,7 +249,7 @@ router.get("/manga/popular/:pagenumber", async (req, res) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "").replace('/manga/','');
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
-      thumb = $("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       upload_on = $(el).find("div.kan > p").text().split('.')[0].trim();
       manga_list.push({
         title,
@@ -280,7 +284,7 @@ router.get("/recommended", async (req, res) => {
     let type, title, chapter, update, endpoint, thumb;
     element.each((idx, el) => {
       title = $(el).find("div.kan > a > h3").text().trim();
-      thumb = $("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       endpoint = $(el).find("div.kan > a").attr('href')
         .replace('/manga/', "").replace(replaceMangaPage,'');
       manga_list.push({
