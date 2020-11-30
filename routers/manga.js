@@ -245,7 +245,7 @@ router.get("/manga/popular/:pagenumber", async (req, res) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "").replace('/manga/','');
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
-      thumb = $("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       upload_on = $(el).find("div.kan > p").text().split('.')[0].trim();
       manga_list.push({
         title,
