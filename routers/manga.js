@@ -144,7 +144,7 @@ router.get("/cari/:query", async (req, res) => {
     let title, thumb, type, endpoint, updated_on;
     element.find(".bge").each((idx, el) => {
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "").replace('/manga/','');
-      thumb = $("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
       title = $(el).find(".kan").find("h3").text().trim();
       updated_on = $(el).find("div.kan > p").text().split('.')[0].trim();
@@ -156,7 +156,11 @@ router.get("/cari/:query", async (req, res) => {
         updated_on,
       });
     });
-    res.json(manga_list);
+    res.json({
+      status: true,
+      message: "success",
+      manga_list
+    });
   } catch (error) {
     res.send({
       status: false,
@@ -208,7 +212,7 @@ router.get("/genres/:slug/:pagenumber", async (req, res) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
       type = $(el).find("div.bgei > a > div").find("b").text();
-      thumb = $(el).find(".bgei > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       manga_list.push({
         title,
         type,
