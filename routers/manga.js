@@ -280,7 +280,7 @@ router.get("/recommended", async (req, res) => {
     let type, title, chapter, update, endpoint, thumb;
     element.each((idx, el) => {
       title = $(el).find("div.kan > a > h3").text().trim();
-      thumb = $("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("data-src");
       endpoint = $(el).find("div.kan > a").attr('href')
         .replace('/manga/', "").replace(replaceMangaPage,'');
       manga_list.push({
