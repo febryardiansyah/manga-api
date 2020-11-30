@@ -14,8 +14,8 @@ router.get("/manga/popular", async (req, res) => {
 //mangalist pagination  -------Done------
 router.get("/manga/page/:pagenumber", async (req, res) => {
   let pagenumber = req.params.pagenumber;
-  let url = pagenumber === '1' ?'https://data.komiku.id/pustaka/?orderby=&category_name=manga&genre=&genre2=&status='
-  :`https://data.komiku.id/pustaka/page/${pagenumber}/?orderby&category_name=manga&genre&genre2&status`;
+  let url = pagenumber === '1' ?'https://data.komiku.id/pustaka/'
+  :`https://data.komiku.id/pustaka/page/${pagenumber}/`;
 
   try {
     const response = await AxiosService(url);
