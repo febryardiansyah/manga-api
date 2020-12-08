@@ -132,7 +132,7 @@ router.get("/manga/detail/:slug", async (req, res) => {
 });
 
 //serach manga ------Done-----------
-router.get("/cari/:query", async (req, res) => {
+router.get("/search/:query", async (req, res) => {
   const query = req.params.query;
   const url = `https://data.komiku.id/cari/?post_type=manga&s=${query}`;
 

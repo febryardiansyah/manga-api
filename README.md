@@ -39,9 +39,9 @@ example : https://mangamint.kaedenoki.net/api/manga/detail/after-transformation-
 
 ## Search Manga by Name
 ```
-/cari/[query]
+/search/[query]
 ```
-example : https://mangamint.kaedenoki.net/api/cari/komi%20san
+example : https://mangamint.kaedenoki.net/api/search/komi%20san
 
 ## Genre List
 ```
