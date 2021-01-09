@@ -96,8 +96,9 @@ router.get("/manga/detail/:slug", async (req, res) => {
     genre_list.push({
       genre_name,
     });
-    obj.genre_list = genre_list;
   });
+
+  obj.genre_list = genre_list||[];
 
   /* Get Synopsis */
   const getSinopsis = element.find("#Sinopsis").first();
@@ -111,7 +112,6 @@ router.get("/manga/detail/:slug", async (req, res) => {
         .find("a")
         .attr("title")
       let chapter_endpoint = $(el).find("a").attr("href")
-      console.log(chapter_endpoint);
       if(chapter_endpoint !== undefined){
         const rep = chapter_endpoint.replace('/ch/','')
         chapter.push({
@@ -122,7 +122,7 @@ router.get("/manga/detail/:slug", async (req, res) => {
       obj.chapter = chapter;
     });
 
-  res.status(200).json(obj);
+  res.status(200).send(obj);
   } catch (error) {
     res.send({
       status: false,

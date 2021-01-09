@@ -13,7 +13,7 @@ const tunnelAgent = tunnel.httpsOverHttp({
 });
 axios.defaults.baseURL = baseUrl;
 // axios.defaults.httpsAgent = tunnelAgent;
-axios.defaults.jar = cookiejar;
+// axios.defaults.jar = cookiejar;
 
 const AxiosService = async (url) => {
   return new Promise(async (resolve, reject) => {
