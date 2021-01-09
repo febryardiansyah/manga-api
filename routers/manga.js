@@ -179,8 +179,10 @@ router.get("/genres", async (req, res) => {
     let obj = {};
     $('#Filter > form > select:nth-child(2)').find('option').each((idx,el)=>{
       if($(el).text() !== 'Genre 1'){
+        const endpoint = $(el).text().includes(' ') ? $(el).text().split(' ').join('-').toLowerCase() :$(el).text().toLowerCase()
         list_genre.push({
-          genre_name:$(el).text()
+          genre_name:$(el).text(),
+          endpoint:endpoint,
         })
       }
     })
