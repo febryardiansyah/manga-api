@@ -1,4 +1,4 @@
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/kaedenok/mangamint.kaedenoki.net/manga-api/
+    - export DEPLOYPATH=/home/kaedenok/mangamint.kaedenoki.net/mangamint/
     - /bin/cp -R * $DEPLOYPATH
