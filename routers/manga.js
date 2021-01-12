@@ -65,7 +65,7 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
 router.get("/manga/detail/:slug", async (req, res) => {
   const slug = req.params.slug;
   try {
-    const response = await AxiosService("manga/" + slug);
+    const response = await AxiosService("manga/"+slug);
   const $ = cheerio.load(response.data);
   const element = $(".perapih");
   let genre_list = [];
@@ -74,13 +74,7 @@ router.get("/manga/detail/:slug", async (req, res) => {
 
   /* Get Title, Type, Author, Status */
   const getMeta = element.find(".inftable > tbody").first();
-  obj.title = $(getMeta)
-    .children()
-    .eq(0)
-    .find("td:nth-child(2)")
-    .text()
-    .replace("Komik", "")
-    .trim();
+  obj.title = $('#Judul > h1').text().trim();
   obj.type = $('tr:nth-child(2) > td:nth-child(2)').find('b').text();
   obj.author = $('#Informasi > table > tbody > tr:nth-child(4) > td:nth-child(2)').text().trim();
   obj.status = $(getMeta).children().eq(4).find("td:nth-child(2)").text();
@@ -124,6 +118,7 @@ router.get("/manga/detail/:slug", async (req, res) => {
 
   res.status(200).send(obj);
   } catch (error) {
+    console.log(error);
     res.send({
       status: false,
       message: error,

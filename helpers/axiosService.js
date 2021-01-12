@@ -18,7 +18,7 @@ axios.defaults.baseURL = baseUrl;
 const AxiosService = async (url) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.get(url);
+      const response = await axios.get(encodeURI(url));
       if (response.status === 200) {
         return resolve(response);
       }
