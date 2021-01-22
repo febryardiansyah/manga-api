@@ -30,7 +30,7 @@ router.get("/:slug", async (req, res) => {
     obj.chapter_pages = getPages.length;
     getPages.each((i, el) => {
       chapter_image.push({
-        chapter_image_link: $(el).attr("src"),
+        chapter_image_link: $(el).attr("src").replace('i0.wp.com/',''),
         image_number: i + 1,
       });
     });
