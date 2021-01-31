@@ -234,7 +234,7 @@ router.get("/genres/:slug/:pagenumber", async (req, res) => {
 //manga popular pagination ----- Done ------
 router.get("/manga/popular/:pagenumber", async (req, res) => {
   const pagenumber = req.params.pagenumber;
-  const url = `other/rekomendasi/page/${pagenumber}`;
+  const url = pagenumber === '1' ? `other/rekomendasi/` : `other/rekomendasi/page/${pagenumber}/`;
 
   try {
     const response = await AxiosService(url);
