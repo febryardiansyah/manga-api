@@ -69,13 +69,12 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
 router.get("/manga/detail/:slug", async (req, res) => {
   const slug = req.params.slug;
   try {
-    const response = await AxiosService(`manga/` + slug);
-    const $ = cheerio.load(response.data);
-    console.log($('body').text());
-    const element = $(".perapih");
-    let genre_list = [];
-    let chapter = [];
-    const obj = {};
+  const response = await AxiosService(`manga/${slug}/`);
+  const $ = cheerio.load(response.data);
+  const element = $(".perapih");
+  let genre_list = [];
+  let chapter = [];
+  const obj = {};
 
     /* Get Title, Type, Author, Status */
     const getMeta = element.find(".inftable > tbody").first();
