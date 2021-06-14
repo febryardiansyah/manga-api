@@ -13,12 +13,13 @@ router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
   try {
     //response
-    const response = await AxiosService(`ch/${slug}`);
+    const response = await AxiosService(`ch/${slug}/`);
     const $ = cheerio.load(response.data);
     const content = $("#article");
     let chapter_image = [];
     const obj = {};
     obj.chapter_endpoint = slug + "/";
+    obj.chapter_name = $('#Judul > h1').text()
 
     const getTitlePages = content.find(".dsk2")
     getTitlePages.filter(() => {
