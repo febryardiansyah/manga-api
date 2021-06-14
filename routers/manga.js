@@ -65,7 +65,7 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
 router.get("/manga/detail/:slug", async (req, res) => {
   const slug = req.params.slug;
   try {
-    const response = await AxiosService("manga/"+slug);
+    const response = await AxiosService(`manga/${slug}/`);
   const $ = cheerio.load(response.data);
   const element = $(".perapih");
   let genre_list = [];
