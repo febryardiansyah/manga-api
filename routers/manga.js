@@ -68,13 +68,20 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
 // detail manga  ---- Done -----
 router.get("/manga/detail/:slug", async (req, res) => {
   const slug = req.params.slug;
+  let endpoint;
+  console.log(slug);
+  if(slug === 'tokyo%e5%8d%8drevengers'){
+    endpoint = 'tokyo卍revengers/';
+  }else{
+    endpoint = slug;
+  }
   try {
-  const response = await AxiosService(`manga/${slug}/`);
-  const $ = cheerio.load(response.data);
-  const element = $(".perapih");
-  let genre_list = [];
-  let chapter = [];
-  const obj = {};
+    const response = await AxiosService(`manga/${endpoint}/`);
+    const $ = cheerio.load(response.data);
+    const element = $(".perapih");
+    let genre_list = [];
+    let chapter = [];
+    const obj = {};
 
     /* Get Title, Type, Author, Status */
     const getMeta = element.find(".inftable > tbody").first();
@@ -108,7 +115,7 @@ router.get("/manga/detail/:slug", async (req, res) => {
     $("#Daftar_Chapter > tbody")
       .find("tr")
       .each((index, el) => {
-        let chapter_title = $(el).find("a").attr("title");
+        let chapter_title = $(el).find("a").text().trim();
         let chapter_endpoint = $(el).find("a").attr("href");
         if (chapter_endpoint !== undefined) {
           const rep = chapter_endpoint.replace("/ch/", "");

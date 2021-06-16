@@ -19,7 +19,7 @@ router.get("/:slug", async (req, res) => {
     let chapter_image = [];
     const obj = {};
     obj.chapter_endpoint = slug + "/";
-    obj.chapter_name = $('#Judul > h1').text()
+    obj.chapter_name = slug.split('-').join(' ').trim()
 
     const getTitlePages = content.find(".dsk2")
     getTitlePages.filter(() => {
