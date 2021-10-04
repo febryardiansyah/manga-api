@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const cheerio = require("cheerio");
+const axios = require("axios").default
 const AxiosService = require("../helpers/axiosService");
 
 router.get("/", (req, res) => {
@@ -12,8 +13,8 @@ router.get("/", (req, res) => {
 router.get("/:slug", async (req, res) => {
   const slug = req.params.slug;
   try {
-    //response
     const response = await AxiosService(`ch/${slug}/`);
+    // const response = await axios.get(`https://komikcast.id/${slug}`)
     const $ = cheerio.load(response.data);
     const content = $("#article");
     let chapter_image = [];
@@ -21,13 +22,21 @@ router.get("/:slug", async (req, res) => {
     obj.chapter_endpoint = slug + "/";
     obj.chapter_name = slug.split('-').join(' ').trim()
 
+    obj.title = $('#Judul > h1').text().trim()
+    /**
+     * @Komiku
+     */
     const getTitlePages = content.find(".dsk2")
     getTitlePages.filter(() => {
       obj.title = $(getTitlePages).find("h1").text().replace("Komik ", "");
     });
-    // obj.download_link = link;
 
+    /**
+     * @Komiku
+     */
     const getPages = $('#Baca_Komik > img')
+
+    // const getPages = $('#chimg > img')
     obj.chapter_pages = getPages.length;
     getPages.each((i, el) => {
       chapter_image.push({

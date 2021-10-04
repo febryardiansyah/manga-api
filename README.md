@@ -15,7 +15,7 @@ Restful API Manga bahasa Indonesia built with ❤️ and node.js
 
 # Documentation
 __API__ __PATH__ = https://mangamint.kaedenoki.net/api/
-</br>__ApI__ Version = `v1.0`
+</br>__ApI__ Version = `v2.0`
 
 ## All Manga
 Get Latest Manga Update
