@@ -70,15 +70,16 @@ router.get("/manga/detail/:slug", async (req, res) => {
   const slug = req.params.slug;
   let endpoint;
   console.log(slug);
-  if(slug === 'tokyo%e5%8d%8drevengers'){
-    endpoint = 'tokyo卍revengers/';
-  }else{
+  if (slug === "tokyo%e5%8d%8drevengers") {
+    endpoint = "tokyo卍revengers/";
+  } else {
     endpoint = slug;
   }
   try {
     const response = await AxiosService(`manga/${endpoint}/`);
     const $ = cheerio.load(response.data);
     const element = $(".perapih");
+    console.log(element);
     let genre_list = [];
     let chapter = [];
     const obj = {};
@@ -87,7 +88,9 @@ router.get("/manga/detail/:slug", async (req, res) => {
     const getMeta = element.find(".inftable > tbody").first();
     obj.title = $("#Judul > h1").text().trim();
     obj.type = $("tr:nth-child(2) > td:nth-child(2)").find("b").text();
-    obj.author = $("#Informasi > table > tbody > tr:nth-child(4) > td:nth-child(2)")
+    obj.author = $(
+      "#Informasi > table > tbody > tr:nth-child(4) > td:nth-child(2)"
+    )
       .text()
       .trim();
     obj.status = $(getMeta).children().eq(4).find("td:nth-child(2)").text();
