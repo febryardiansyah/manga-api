@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const cheerio = require("cheerio");
-const baseUrl = require("../constants/urls");
+const {baseUrl, baseApi} = require("../constants/urls");
 const replaceMangaPage = "https://komiku.id/manga/";
 const AxiosService = require("../helpers/axiosService");
 
@@ -14,26 +14,28 @@ router.get("/manga/popular", async (req, res) => {
 //mangalist pagination  -------Done------
 router.get("/manga/page/:pagenumber", async (req, res) => {
   let pagenumber = req.params.pagenumber;
-  let url =
+  let path =
     pagenumber === "1"
-      ? "https://data.komiku.id/pustaka/"
-      : `https://data.komiku.id/pustaka/page/${pagenumber}/`;
+      ? "/manga/"
+      : `/manga/page/${pagenumber}/`;
+  let url = baseApi + path;
 
   try {
     const response = await AxiosService(url);
-    console.log(url);
     if (response.status === 200) {
       const $ = cheerio.load(response.data);
-      const element = $(".perapih");
+      const element = $(".bge");
       let manga_list = [];
       let title, type, updated_on, endpoint, thumb, chapter;
 
-      element.find(".daftar > .bge").each((idx, el) => {
+
+      element.each((idx, el) => {
+        console.log(1);
         title = $(el).find(".kan > a").find("h3").text().trim();
         endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
         type = $(el).find(".bgei > a").find(".tpe1_inf > b").text();
         updated_on = $(el).find(".kan > span").text().split("• ")[1].trim();
-        thumb = $(el).find(".bgei > a").find("img").attr("data-src");
+        thumb = $(el).find(".bgei > a").find("img").attr("src");
         chapter = $(el)
           .find("div.kan > div:nth-child(5) > a > span:nth-child(2)")
           .text();
@@ -45,6 +47,7 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
           endpoint,
           chapter,
         });
+
       });
       return res.status(200).json({
         status: true,
@@ -68,15 +71,9 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
 // detail manga  ---- Done -----
 router.get("/manga/detail/:slug", async (req, res) => {
   const slug = req.params.slug;
-  let endpoint;
-  console.log(slug);
-  if(slug === 'tokyo%e5%8d%8drevengers'){
-    endpoint = 'tokyo卍revengers/';
-  }else{
-    endpoint = slug;
-  }
+
   try {
-    const response = await AxiosService(`manga/${endpoint}/`);
+    const response = await AxiosService(`/manga/${slug}`);
     const $ = cheerio.load(response.data);
     const element = $(".perapih");
     let genre_list = [];
@@ -138,17 +135,17 @@ router.get("/manga/detail/:slug", async (req, res) => {
 });
 
 //serach manga ------Done-----------
-router.get("/search/:query", async (req, res) => {
-  const query = req.params.query;
-  const url = `https://data.komiku.id/cari/?post_type=manga&s=${query}`;
+router.get("/search/", async (req, res) => {
+  const query = req.query.q;
+  const url =  baseApi + `?post_type=manga&s=${query}`;
 
   try {
     const response = await AxiosService(url);
     const $ = cheerio.load(response.data);
-    const element = $(".daftar");
+    const element = $(".bge");
     let manga_list = [];
     let title, thumb, type, endpoint, updated_on;
-    element.find(".bge").each((idx, el) => {
+    element.each((idx, el) => {
       endpoint = $(el)
         .find("a")
         .attr("href")
@@ -219,21 +216,23 @@ router.get("/genres", async (req, res) => {
 router.get("/genres/:slug/:pagenumber", async (req, res) => {
   const slug = req.params.slug;
   const pagenumber = req.params.pagenumber;
-  const url =
+  const path =
     pagenumber === "1"
-      ? `https://data.komiku.id/pustaka/?orderby=modified&genre=${slug}&genre2=&status=&category_name=`
-      : `https://data.komiku.id/pustaka/page/${pagenumber}/?orderby=modified&genre=${slug}&genre2&status&category_name`;
+      ? `genre/${slug}/?orderby=modified&genre2&status&category_name`
+      : `manga/page/${pagenumber}/?orderby=modified&category_name&genre=${slug}&genre2&status`;
+  const url = baseApi + path;
+
   try {
     const response = await AxiosService(url);
     const $ = cheerio.load(response.data);
-    const element = $(".daftar");
+    const element = $(".bge");
     var thumb, title, endpoint, type;
     var manga_list = [];
-    element.find(".bge").each((idx, el) => {
+    element.each((idx, el) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
       type = $(el).find("div.bgei > a > div").find("b").text();
-      thumb = $(el).find("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("src");
       manga_list.push({
         title,
         type,
@@ -258,18 +257,19 @@ router.get("/genres/:slug/:pagenumber", async (req, res) => {
 //manga popular pagination ----- Done ------
 router.get("/manga/popular/:pagenumber", async (req, res) => {
   const pagenumber = req.params.pagenumber;
-  const url =
+  const path =
     pagenumber === "1"
       ? `other/rekomendasi/`
       : `other/rekomendasi/page/${pagenumber}/`;
+  const url = baseApi + path;
 
   try {
     const response = await AxiosService(url);
     const $ = cheerio.load(response.data);
-    const element = $(".daftar");
-    let thumb, title, endpoint, type, upload_on;
+    const element = $(".bge");
+    let thumb, title, endpoint, type, upload_on, sortDesc;
     let manga_list = [];
-    element.find(".bge").each((idx, el) => {
+    element.each((idx, el) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el)
         .find("a")
@@ -277,14 +277,16 @@ router.get("/manga/popular/:pagenumber", async (req, res) => {
         .replace(replaceMangaPage, "")
         .replace("/manga/", "");
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
-      thumb = $(el).find("div.bgei > a > img").attr("data-src");
-      upload_on = $(el).find("div.kan > p").text().split(".")[0].trim();
+      thumb = $(el).find("div.bgei > a > img").attr("src");
+      sortDesc = $(el).find("div.kan > p").text().trim();
+      upload_on = $(el).find("div.kan > span.judul2").text().split("•")[1].trim();
       manga_list.push({
         title,
         type,
         thumb,
         endpoint,
         upload_on,
+        sortDesc
       });
     });
     res.json({
@@ -302,17 +304,23 @@ router.get("/manga/popular/:pagenumber", async (req, res) => {
 });
 
 //recommended ---done---
-router.get("/recommended", async (req, res) => {
+router.get("/recommended/:pagenumber", async (req, res) => {
+  const pagenumber = req.params.pagenumber;
+  const path =
+    pagenumber === "1"
+      ? `other/hot/`
+      : `other/hot/page/${pagenumber}/`;
+  const url = baseApi + path;
   try {
-    const response = await AxiosService("other/hot/");
+    const response = await AxiosService(url);
 
     const $ = cheerio.load(response.data);
-    const element = $("div.daftar > .bge");
+    const element = $(".bge");
     let manga_list = [];
     let type, title, chapter, update, endpoint, thumb;
     element.each((idx, el) => {
       title = $(el).find("div.kan > a > h3").text().trim();
-      thumb = $(el).find("div.bgei > a > img").attr("data-src");
+      thumb = $(el).find("div.bgei > a > img").attr("src");
       endpoint = $(el)
         .find("div.kan > a")
         .attr("href")
@@ -340,36 +348,36 @@ router.get("/recommended", async (req, res) => {
 });
 
 //manhua  ------Done------
-router.get("/manhua/:pagenumber", async (req, res) => {
+router.get("/manhua/page/:pagenumber", async (req, res) => {
   await getManhuaManhwa(req, res, `manhua`);
 });
 
 //manhwa
-router.get("/manhwa/:pagenumber", async (req, res) => {
+router.get("/manhwa/page/:pagenumber", async (req, res) => {
   await getManhuaManhwa(req, res, `manhwa`);
 });
 
 const getManhuaManhwa = async (req, res, type) => {
   let pagenumber = req.params.pagenumber;
-  let url =
+  let path =
     pagenumber === "1"
-      ? `https://data.komiku.id/pustaka/?orderby=&category_name=${type}&genre=&genre2=&status=`
-      : `https://data.komiku.id/pustaka/page/${pagenumber}/?orderby&category_name=${type}&genre&genre2&status`;
-
+      ? `manga/?orderby=&category_name=${type}&genre=&genre2=&status=`
+      : `manga/page/${pagenumber}/?orderby&category_name=${type}&genre&genre2&status`;
+  const url = baseApi + path;
   try {
     console.log(url);
     const response = await AxiosService(url);
     const $ = cheerio.load(response.data);
-    const element = $(".perapih");
+    const element = $(".bge");
     var manga_list = [];
     var title, type, updated_on, endpoint, thumb, chapter;
 
-    element.find(".daftar > .bge").each((idx, el) => {
+    element.each((idx, el) => {
       title = $(el).find(".kan > a").find("h3").text().trim();
       endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
       type = $(el).find(".bgei > a").find(".tpe1_inf > b").text().trim();
       updated_on = $(el).find(".kan > span").text().split("• ")[1].trim();
-      thumb = $(el).find(".bgei > a").find("img").attr("data-src");
+      thumb = $(el).find(".bgei > a").find("img").attr("src");
       chapter = $(el)
         .find("div.kan > div:nth-child(5) > a > span:nth-child(2)")
         .text();
