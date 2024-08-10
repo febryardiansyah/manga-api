@@ -22,7 +22,7 @@ router.get("/:slug", async (req, res) => {
     obj.chapter_endpoint = slug + "/";
     obj.chapter_name = slug.split('-').join(' ').trim()
 
-    obj.title = $('#Judul > h1').text().trim()
+    obj.title = $('#Judul > header > p > a > b').text().trim()
     /**
      * @Komiku
      */

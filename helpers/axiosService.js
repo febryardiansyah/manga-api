@@ -1,5 +1,5 @@
 const axios = require("axios").default;
-const baseUrl = require("../constants/urls");
+const {baseUrl} = require("../constants/urls");
 const axiosCookieJarSupport = require("axios-cookiejar-support").default;
 axiosCookieJarSupport(axios);
 

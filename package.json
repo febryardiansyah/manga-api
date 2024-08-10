@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "MODE=PRODUCTION node index.js",
-    "dev": "MODE=DEVELOPMENT nodemon index.js"
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,7 @@
     "axios-https-proxy-fix": "^0.17.1",
     "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.17.1",
     "got": "^11.5.2",
     "helmet": "^3.23.3",
