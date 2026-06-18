@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import axiosCookieJarSupport from "axios-cookiejar-support";
 import {baseUrl} from "../constants/urls";
 
@@ -6,7 +6,7 @@ axiosCookieJarSupport(axios);
 
 axios.defaults.baseURL = baseUrl;
 
-const AxiosService = async (url?: string | null): Promise<any> => {
+const AxiosService = async (url?: string | null): Promise<AxiosResponse> => {
   const _url = url == null ? url : encodeURI(url);
   try {
     const response = await axios.get(_url as string);

@@ -22,27 +22,25 @@ router.get("/manga/page/:pagenumber", async (req: Request, res: Response) => {
   let pagenumber = req.params.pagenumber;
   let path =
     pagenumber === "1"
-      ? "/manga/"
-      : `/manga/page/${pagenumber}/`;
-  let url = baseApi + path;
+      ? "/komik/"
+      : `/komik/page/${pagenumber}/`;
+  let url = baseUrl + path;
 
   try {
     const response = await AxiosService(url);
     if (response.status === 200) {
-      const $ = cheerio.load(response.data as string);
-      const element = $(".bge");
+      const $ = cheerio.load(response.data);
+      const element = $(".mk-section > .mk-grid > a");
       let manga_list: MangaListItem[] = [];
-      let title: string, type: string, updated_on: string, endpoint: string, thumb: string, chapter: string;
 
       element.each((_idx, el) => {
-        console.log(1);
-        title = $(el).find(".kan > a").find("h3").text().trim();
-        endpoint = $(el).find("a").attr("href")?.replace(replaceMangaPage, "") ?? "";
-        type = $(el).find(".bgei > a").find(".tpe1_inf > b").text();
-        updated_on = $(el).find(".kan > .judul2").text().split("|")[1]?.trim() ?? "";
-        thumb = $(el).find(".bgei > a").find("img").attr("src") ?? "";
-        chapter = $(el)
-          .find("div.kan > div:nth-child(5) > a > span:nth-child(2)")
+        const title = $(el).find(".mk-card__title").text().trim();
+        const endpoint = $(el).attr("href") || "";
+        const type = $(el).find(".mk-card__cover > span").text();
+        const updated_on = $(el).find(".mk-card__meta > .mk-card__time").text();
+        const thumb = $(el).find(".mk-card__cover > img").attr("src") || "";
+        const chapter = $(el)
+          .find("div.mk-card__meta > span.mk-card__chapter")
           .text();
         manga_list.push({
           title,
@@ -53,6 +51,7 @@ router.get("/manga/page/:pagenumber", async (req: Request, res: Response) => {
           chapter,
         });
       });
+
       return res.status(200).json({
         status: true,
         message: "success",
