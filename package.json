@@ -2,10 +2,11 @@
   "name": "manga-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "MODE=PRODUCTION node index.js",
-    "dev": "nodemon index.js"
+    "build": "tsc",
+    "start": "MODE=PRODUCTION node dist/index.js",
+    "dev": "tsx watch index.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +23,13 @@
     "helmet": "^3.23.3",
     "tough-cookie": "^4.0.0",
     "tunnel": "0.0.6"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.35",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   }
 }

@@ -1,18 +1,24 @@
-const router = require("express").Router();
-const cheerio = require("cheerio");
-const {baseUrl, baseApi} = require("../constants/urls");
+import { Router, Request, Response } from "express";
+const router = Router();
+import cheerio from "cheerio";
+import { baseUrl, baseApi } from "../constants/urls";
 const replaceMangaPage = "https://komiku.org/manga/";
-const AxiosService = require("../helpers/axiosService");
+import AxiosService from "../helpers/axiosService";
+import type {
+  MangaListItem,
+  GenreItem,
+  PopularItem,
+  RecommendedItem,
+  ManhuaManhwaItem,
+} from "../types";
 
-// manga popular ----Ignore this for now --------
-router.get("/manga/popular", async (req, res) => {
+router.get("/manga/popular", async (_req: Request, res: Response) => {
   res.send({
     message: "nothing",
   });
 });
 
-//mangalist pagination  -------Done------
-router.get("/manga/page/:pagenumber", async (req, res) => {
+router.get("/manga/page/:pagenumber", async (req: Request, res: Response) => {
   let pagenumber = req.params.pagenumber;
   let path =
     pagenumber === "1"
@@ -23,19 +29,18 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
   try {
     const response = await AxiosService(url);
     if (response.status === 200) {
-      const $ = cheerio.load(response.data);
+      const $ = cheerio.load(response.data as string);
       const element = $(".bge");
-      let manga_list = [];
-      let title, type, updated_on, endpoint, thumb, chapter;
+      let manga_list: MangaListItem[] = [];
+      let title: string, type: string, updated_on: string, endpoint: string, thumb: string, chapter: string;
 
-
-      element.each((idx, el) => {
+      element.each((_idx, el) => {
         console.log(1);
         title = $(el).find(".kan > a").find("h3").text().trim();
-        endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
+        endpoint = $(el).find("a").attr("href")?.replace(replaceMangaPage, "") ?? "";
         type = $(el).find(".bgei > a").find(".tpe1_inf > b").text();
-        updated_on = $(el).find(".kan > .judul2").text().split("|")[1].trim();
-        thumb = $(el).find(".bgei > a").find("img").attr("src");
+        updated_on = $(el).find(".kan > .judul2").text().split("|")[1]?.trim() ?? "";
+        thumb = $(el).find(".bgei > a").find("img").attr("src") ?? "";
         chapter = $(el)
           .find("div.kan > div:nth-child(5) > a > span:nth-child(2)")
           .text();
@@ -47,7 +52,6 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
           endpoint,
           chapter,
         });
-
       });
       return res.status(200).json({
         status: true,
@@ -69,19 +73,17 @@ router.get("/manga/page/:pagenumber", async (req, res) => {
   }
 });
 
-// detail manga  ---- Done -----
-router.get("/manga/detail/:slug", async (req, res) => {
+router.get("/manga/detail/:slug", async (req: Request, res: Response) => {
   const slug = req.params.slug;
 
   try {
     const response = await AxiosService(`/manga/${slug}`);
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data as string);
     const element = $(".perapih");
-    let genre_list = [];
-    let chapter = [];
-    const obj = {};
+    let genre_list: { genre_name: string }[] = [];
+    let chapter: { chapter_title: string; chapter_endpoint: string }[] = [];
+    const obj: Record<string, any> = {};
 
-    /* Get Title, Type, Author, Status */
     const getMeta = element.find(".inftable > tbody").first();
     obj.title = $("#Judul > h1").text().trim();
     obj.type = $("tr:nth-child(2) > td:nth-child(2)").find("b").text();
@@ -90,13 +92,11 @@ router.get("/manga/detail/:slug", async (req, res) => {
       .trim();
     obj.status = $(getMeta).children().eq(4).find("td:nth-child(2)").text();
 
-    /* Set Manga Endpoint */
     obj.manga_endpoint = slug;
 
-    /* Get Manga Thumbnail */
     obj.thumb = element.find(".ims > img").attr("src");
 
-    element.find(".genre > li").each((idx, el) => {
+    element.find(".genre > li").each((_idx, el) => {
       let genre_name = $(el).find("a").text().trim();
       genre_list.push({
         genre_name,
@@ -105,14 +105,12 @@ router.get("/manga/detail/:slug", async (req, res) => {
 
     obj.genre_list = genre_list || [];
 
-    /* Get Synopsis */
     const getSinopsis = element.find("#Sinopsis").first();
     obj.synopsis = $(getSinopsis).find("p").text().trim();
 
-    /* Get Chapter List */
     $("#Daftar_Chapter > tbody")
       .find("tr")
-      .each((index, el) => {
+      .each((_index, el) => {
         let chapter_title = $(el).find("a").text().trim();
         let chapter_endpoint = $(el).find("a").attr("href");
         if (chapter_endpoint !== undefined) {
@@ -135,27 +133,26 @@ router.get("/manga/detail/:slug", async (req, res) => {
   }
 });
 
-//serach manga ------Done-----------
-router.get("/search/", async (req, res) => {
-  const query = req.query.q;
-  const url =  baseApi + `?post_type=manga&s=${query}`;
+router.get("/search/", async (req: Request, res: Response) => {
+  const query = req.query.q as string;
+  const url = baseApi + `?post_type=manga&s=${query}`;
 
   try {
     const response = await AxiosService(url);
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data as string);
     const element = $(".bge");
-    let manga_list = [];
-    let title, thumb, type, endpoint, updated_on;
-    element.each((idx, el) => {
+    let manga_list: MangaListItem[] = [];
+    let title: string, thumb: string, type: string, endpoint: string, updated_on: string;
+    element.each((_idx, el) => {
       endpoint = $(el)
         .find("a")
         .attr("href")
-        .replace(replaceMangaPage, "")
-        .replace("/manga/", "");
-      thumb = $(el).find("div.bgei > a > img").attr("data-src");
+        ?.replace(replaceMangaPage, "")
+        .replace("/manga/", "") ?? "";
+      thumb = $(el).find("div.bgei > a > img").attr("data-src") ?? "";
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
       title = $(el).find(".kan").find("h3").text().trim();
-      updated_on = $(el).find("div.kan > p").text().split(".")[0].trim();
+      updated_on = $(el).find("div.kan > p").text().split(".")[0]?.trim() ?? "";
       manga_list.push({
         title,
         thumb,
@@ -172,22 +169,21 @@ router.get("/search/", async (req, res) => {
   } catch (error) {
     res.send({
       status: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : error,
     });
   }
 });
 
-//genreList  -----Done-----
-router.get("/genres", async (req, res) => {
+router.get("/genres", async (_req: Request, res: Response) => {
   try {
     const response = await AxiosService();
 
-    const $ = cheerio.load(response.data);
-    let list_genre = [];
-    let obj = {};
+    const $ = cheerio.load(response.data as string);
+    let list_genre: GenreItem[] = [];
+    let obj: Record<string, any> = {};
     $("#Filter > form > select:nth-child(4)")
       .find("option")
-      .each((idx, el) => {
+      .each((_idx, el) => {
         if ($(el).text() !== "Genre 1") {
           const endpoint = $(el)
             .text()
@@ -212,8 +208,7 @@ router.get("/genres", async (req, res) => {
   }
 });
 
-//genreDetail ----Done-----
-router.get("/genres/:slug/:pagenumber", async (req, res) => {
+router.get("/genres/:slug/:pagenumber", async (req: Request, res: Response) => {
   const slug = req.params.slug;
   const pagenumber = req.params.pagenumber;
   const path =
@@ -224,20 +219,21 @@ router.get("/genres/:slug/:pagenumber", async (req, res) => {
 
   try {
     const response = await AxiosService(url);
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data as string);
     const element = $(".bge");
-    var thumb, title, endpoint, type;
-    var manga_list = [];
-    element.each((idx, el) => {
+    let thumb: string, title: string, endpoint: string, type: string;
+    let manga_list: MangaListItem[] = [];
+    element.each((_idx, el) => {
       title = $(el).find(".kan").find("h3").text().trim();
-      endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
+      endpoint = $(el).find("a").attr("href")?.replace(replaceMangaPage, "") ?? "";
       type = $(el).find("div.bgei > a > div").find("b").text();
-      thumb = $(el).find("div.bgei > a > img").attr("src");
+      thumb = $(el).find("div.bgei > a > img").attr("src") ?? "";
       manga_list.push({
         title,
         type,
         thumb,
         endpoint,
+        updated_on: "",
       });
     });
     res.json({
@@ -254,8 +250,7 @@ router.get("/genres/:slug/:pagenumber", async (req, res) => {
   }
 });
 
-//manga popular pagination ----- Done ------
-router.get("/manga/popular/:pagenumber", async (req, res) => {
+router.get("/manga/popular/:pagenumber", async (req: Request, res: Response) => {
   const pagenumber = req.params.pagenumber;
   const path =
     pagenumber === "1"
@@ -265,21 +260,21 @@ router.get("/manga/popular/:pagenumber", async (req, res) => {
 
   try {
     const response = await AxiosService(url);
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data as string);
     const element = $(".bge");
-    let thumb, title, endpoint, type, upload_on, sortDesc;
-    let manga_list = [];
-    element.each((idx, el) => {
+    let thumb: string, title: string, endpoint: string, type: string, upload_on: string, sortDesc: string;
+    let manga_list: PopularItem[] = [];
+    element.each((_idx, el) => {
       title = $(el).find(".kan").find("h3").text().trim();
       endpoint = $(el)
         .find("a")
         .attr("href")
-        .replace(replaceMangaPage, "")
-        .replace("/manga/", "");
+        ?.replace(replaceMangaPage, "")
+        .replace("/manga/", "") ?? "";
       type = $(el).find("div.bgei > a > div.tpe1_inf > b").text();
-      thumb = $(el).find("div.bgei > a > img").attr("src");
+      thumb = $(el).find("div.bgei > a > img").attr("src") ?? "";
       sortDesc = $(el).find("div.kan > p").text().trim();
-      upload_on = $(el).find("div.kan > span.judul2").text().split("•")[1].trim();
+      upload_on = $(el).find("div.kan > span.judul2").text().split("•")[1]?.trim() ?? "";
       manga_list.push({
         title,
         type,
@@ -303,8 +298,7 @@ router.get("/manga/popular/:pagenumber", async (req, res) => {
   }
 });
 
-//recommended ---done---
-router.get("/recommended/:pagenumber", async (req, res) => {
+router.get("/recommended/:pagenumber", async (req: Request, res: Response) => {
   const pagenumber = req.params.pagenumber;
   const path =
     pagenumber === "1"
@@ -314,25 +308,24 @@ router.get("/recommended/:pagenumber", async (req, res) => {
   try {
     const response = await AxiosService(url);
 
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data as string);
     const element = $(".bge");
-    let manga_list = [];
-    let type, title, chapter, update, endpoint, thumb;
-    element.each((idx, el) => {
-      title = $(el).find("div.kan > a > h3").text().trim();
-      thumb = $(el).find("div.bgei > a > img").attr("src");
-      endpoint = $(el)
+    let manga_list: RecommendedItem[] = [];
+    element.each((_idx, el) => {
+      const title = $(el).find("div.kan > a > h3").text().trim();
+      const thumb = $(el).find("div.bgei > a > img").attr("src") ?? "";
+      const endpoint = $(el)
         .find("div.kan > a")
         .attr("href")
-        .replace("/manga/", "")
-        .replace(replaceMangaPage, "");
+        ?.replace("/manga/", "")
+        .replace(replaceMangaPage, "") ?? "";
       manga_list.push({
         title,
-        chapter,
-        type,
+        chapter: undefined,
+        type: undefined,
         thumb,
         endpoint,
-        update,
+        update: undefined,
       });
     });
     return res.json({
@@ -342,22 +335,20 @@ router.get("/recommended/:pagenumber", async (req, res) => {
     });
   } catch (error) {
     res.send({
-      message: error.message,
+      message: error instanceof Error ? error.message : error,
     });
   }
 });
 
-//manhua  ------Done------
-router.get("/manhua/page/:pagenumber", async (req, res) => {
-  await getManhuaManhwa(req, res, `manhua`);
+router.get("/manhua/page/:pagenumber", async (req: Request, res: Response) => {
+  await getManhuaManhwa(req, res, "manhua");
 });
 
-//manhwa
-router.get("/manhwa/page/:pagenumber", async (req, res) => {
-  await getManhuaManhwa(req, res, `manhwa`);
+router.get("/manhwa/page/:pagenumber", async (req: Request, res: Response) => {
+  await getManhuaManhwa(req, res, "manhwa");
 });
 
-const getManhuaManhwa = async (req, res, type) => {
+const getManhuaManhwa = async (req: Request, res: Response, type: string) => {
   let pagenumber = req.params.pagenumber;
   let path =
     pagenumber === "1"
@@ -367,17 +358,17 @@ const getManhuaManhwa = async (req, res, type) => {
   try {
     console.log(url);
     const response = await AxiosService(url);
-    const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data as string);
     const element = $(".bge");
-    var manga_list = [];
-    var title, type, updated_on, endpoint, thumb, chapter;
+    const manga_list: ManhuaManhwaItem[] = [];
+    let title: string, updated_on: string, endpoint: string, thumb: string, chapter: string;
 
-    element.each((idx, el) => {
+    element.each((_idx, el) => {
       title = $(el).find(".kan > a").find("h3").text().trim();
-      endpoint = $(el).find("a").attr("href").replace(replaceMangaPage, "");
+      endpoint = $(el).find("a").attr("href")?.replace(replaceMangaPage, "") ?? "";
       type = $(el).find(".bgei > a").find(".tpe1_inf > b").text().trim();
-      updated_on = $(el).find(".kan > span").text().split("• ")[1].trim();
-      thumb = $(el).find(".bgei > a").find("img").attr("src");
+      updated_on = $(el).find(".kan > span").text().split("• ")[1]?.trim() ?? "";
+      thumb = $(el).find(".bgei > a").find("img").attr("src") ?? "";
       chapter = $(el)
         .find("div.kan > div:nth-child(5) > a > span:nth-child(2)")
         .text();
@@ -406,4 +397,4 @@ const getManhuaManhwa = async (req, res, type) => {
   }
 };
 
-module.exports = router;
+export default router;
